@@ -1,3 +1,4 @@
+import ast
 import numpy as np
 import seaborn as sns
 from ansi.colour import rgb
@@ -61,7 +62,7 @@ def color_texts(texts, values, use_absolute):
 def visual_matrix(matrix, labels=None, title=None, **kwargs):
 
     sns.set(font_scale=0.8)
-    ax = sns.heatmap(matrix, xticklabels=labels, yticklabels=labels, cmap='crest', **kwargs)
+    ax = sns.heatmap(matrix, xticklabels=labels, yticklabels=labels, cmap='crest', cbar=False, **kwargs)
     if title:
         ax.set(title = title)
 
@@ -234,11 +235,11 @@ def split(s1, s2):
     return to_split
 
 
-def adjust_tokens(bpe_tokens, java_tokens, attentions):
+def adjust_tokens(bpe_tokens, java_tokens_types, attentions):
 
     # clean the tokens
     bpe_tokens = [x.replace(' ', '') if x != '\n' else x for x in bpe_tokens]
-    java_tokens = [x.replace(' ', '') if x != '\n' else x for x in java_tokens]
+    java_tokens = [x.replace(' ', '') if x != '\n' else x for x,y in java_tokens_types]
 
     code_index = 0
     bpe_index = 0
@@ -291,5 +292,56 @@ def adjust_tokens(bpe_tokens, java_tokens, attentions):
                     print('exceptional case')
 
     # testing if the new matrix dimension is correct after reducing and expanding it
+    decoded_tokens = []
+    for i in range(len(bpe_tokens[2:-1])):
+        if bpe_tokens[i+2] == '\n':
+            java_tokens_types.insert(i, ['\n', ['linebreak.java']])
+        decoded_tokens.append((bpe_tokens[i+2], java_tokens_types[i][1]))
+
     assert len(bpe_tokens) == attentions.shape[0]
-    return attentions, bpe_tokens
+    return attentions[2:-1, 2:-1], decoded_tokens
+
+
+def analyze_least_attended_tokens(project_lat):
+    categories = {}
+
+    for x, y in project_lat:
+        cat = '.'.join(x[1][-1].split('.')[:-1])
+        categories.setdefault(cat, 0)
+        categories[cat] += 1
+    
+    return categories
+
+
+def tokenize(fname):
+    lines = []
+    with open(fname) as f:
+        lines = f.readlines()
+
+    key = ''
+    value = ''
+    pairs = []
+    for line in lines:
+        if ':' in line:
+            key = ':'.join(line.split(':')[3:]).strip()
+
+        elif line.strip().startswith('[') and line.strip().endswith(']'):
+            value = line.strip()[1:-1]
+            pairs.append((key, ast.literal_eval('[' + value + ']')))
+            key, value = '', ''
+
+        elif line.startswith('  '):
+            value += line
+
+        elif line.strip() == ']':
+            pairs.append((key, ast.literal_eval('[' + value + ']')))
+            key, value = '', ''
+
+    tokens = []
+    for token, scope in pairs:
+        if token == '': continue
+        # if 'punctuation.definition.comment.java' in scope or 'comment.block.javadoc.java' in scope or 'comment.line.double-slash.java' in scope: continue
+
+        tokens.append((token, scope))
+
+    return tokens

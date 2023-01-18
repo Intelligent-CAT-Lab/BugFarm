@@ -5,7 +5,7 @@ from multiprocessing import Pool
 import argparse
 import sys
 from typing import Set, Tuple
-from tokenizer import tokenize
+from utils import tokenize
 
 
 def parse_java_func_intervals(content: str) -> Set[Tuple[int, int]]:
@@ -148,7 +148,7 @@ def main(args):
 
 def parse_args():
     parser = argparse.ArgumentParser("extract methods of a given java project")
-    parser.add_argument('--project_name', type=str, default='Lang', help='defects4j project name to process and extract methods')
+    parser.add_argument('--project_name', type=str, default='JacksonXml', help='defects4j project name to process and extract methods')
     return parser.parse_args()
 
 if __name__ == '__main__':
