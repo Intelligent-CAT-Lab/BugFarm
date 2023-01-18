@@ -1,6 +1,10 @@
 # Intelligent-Bug-Generation
 In this project, we will find model vulnerabilities and change them to generate hard-to-find bugs.
 
+## Dependencies
+Please execute the following to install dependencies:
+`pip3 install -r requirements.txt`
+
 ## Method Extraction
 The first step is to extract the methods from all relevant classes in a java project. Please refer to [defects4j](https://github.com/rjust/defects4j) for a detailed explanation of different java projects.
 
