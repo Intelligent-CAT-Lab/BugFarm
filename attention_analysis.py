@@ -20,7 +20,7 @@ def main(args):
 
     project = args.project_name
     lines = []
-    with open(f'data/{project}/{project}.jsonl') as fr:
+    with open(f'data/{project}/unique_methods.jsonl') as fr:
         lines = fr.readlines()
     
     project_least_attended_tokens = []
@@ -65,11 +65,11 @@ def main(args):
 
         plt.figure(figsize=(7,7))
         ax = visual_matrix(averaged_attentions, decoded_tokens)
-        plt.savefig('{}_attention_analysis/img/{}_{}_mat.png'.format(model_type, dct['index'], dct['bug_id']), bbox_inches='tight')
+        plt.savefig('{}_attention_analysis/img/{}_mat.png'.format(model_type, dct['index']), bbox_inches='tight')
 
         col_averaged = np.average(averaged_attentions, axis=0)
 
-        k = 10
+        k = args.threshold
         token_attn = list(zip(decoded_tokens_types, col_averaged))
         token_attn.sort(key = lambda i:i[1])
 
@@ -155,13 +155,12 @@ def main(args):
         ax2.grid(False)
         ax2.legend(loc=3)
         ax.legend(loc=4)
-        plt.savefig('{}_attention_analysis/img/{}_{}.png'.format(model_type, dct['index'], dct['bug_id']), bbox_inches='tight')
+        plt.savefig('{}_attention_analysis/img/{}.png'.format(model_type, dct['index']), bbox_inches='tight')
 
-        img_src = 'img/{}_{}.png'.format(dct['index'], dct['bug_id'])
-        atn_mat_img_src = 'img/{}_{}_mat.png'.format(dct['index'], dct['bug_id'])
-        index = dct['bug_id'] + '.' + dct['index']
+        img_src = 'img/{}.png'.format(dct['index'])
+        atn_mat_img_src = 'img/{}_mat.png'.format(dct['index'])
+        index = dct['index']
         table_rows += f'\n\t\t\t\t<tr>\n\t\t\t\t\t<td>{index}</td>\n\t\t\t\t\t<td>{token_str}</td>\n\t\t\t\t\t<td><img src={atn_mat_img_src}></td>\n\t\t\t\t\t<td><img src={img_src}></td>\n\t\t\t\t</tr>'
-        if index == '1.2': break
 
     table = f'<html>\n\t<head>\n\t\t<style type="text/css" media="screen">\n\t\t\ttable, th, td {{border: 1px solid black;}}\n\t\t\ttd, th {{word-wrap: break-word}}\n\t\t</style>\n\t</head>\n\t<body>\n\t\t<table>\n\t\t\t<tr>\n\t\t\t\t<th>Index</th>\n\t\t\t\t<th>Statements <br> (red = among least 10% of attended tokens) <br> (blue = among least 10% of attended statements) </th>\n\t\t\t\t<th>Attention Matrix (averaged over all layers and heads)</th>\n\t\t\t\t<th>Statement (unattended / all tokens)</th>\n\t\t\t</tr>{table_rows}\n\t\t</table>\n\t</body>\n</html>'
     with open(f'{model_type}_attention_analysis/{project}_{model_type}.html', 'w') as fw:
@@ -179,6 +178,7 @@ def parse_args():
     parser = argparse.ArgumentParser("visualize attention weights of a given java project and locate least attended statements")
     parser.add_argument('--project_name', type=str, default='JacksonXml', help='defects4j project name to process and extract methods')
     parser.add_argument('--model_type', type=str, default='codebert', help='model to use in this experiment')
+    parser.add_argument('--threshold', type=int, default=10, help='threshold for least attended tokens and statements')
     return parser.parse_args()
 
 if __name__ == '__main__':

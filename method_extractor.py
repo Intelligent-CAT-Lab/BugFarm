@@ -6,6 +6,7 @@ import argparse
 import sys
 from typing import Set, Tuple
 from utils import tokenize
+import ast
 
 
 def parse_java_func_intervals(content: str) -> Set[Tuple[int, int]]:
@@ -135,7 +136,7 @@ def main(args):
     project = args.project_name
 
     os.system(f'mkdir -p data/{project}')
-    json_file = open(f"data/{project}/{project}.jsonl", "wt")
+    json_file = open(f"data/{project}/methods.jsonl", "wt")
 
     # export project bug ids
     bug_ids = get_bug_ids(project)
@@ -144,6 +145,34 @@ def main(args):
     pool = Pool(os.cpu_count())
     for i, _ in enumerate(pool.imap_unordered(process_bug, bug_ids), 1):
         sys.stderr.write('\rpercentage of files completed: {0:%}'.format(i/len(bug_ids)))
+    
+    # handle duplicates
+    lines = []
+    with open(f'data/{project}/methods.jsonl') as fr:
+        lines = fr.readlines()
+
+    json_file = open(f"data/{project}/methods.jsonl", "wt")
+    unique_methods = []
+    unique_method_tokens = []
+
+    for l in lines:
+        dct = ast.literal_eval(l)
+
+        if dct['method'].strip() not in unique_methods:
+            unique_methods.append(dct['method'].strip())
+            unique_method_tokens.append(dct['tokens'])
+        
+        dct['foreign_key'] = str(unique_methods.index(dct['method'].strip()))
+
+        json_file.write(json.dumps(dct) + '\n')
+        json_file.flush()
+
+    assert len(unique_methods) == len(unique_method_tokens)
+
+    with open(f'data/{project}/unique_methods.jsonl', 'w') as fw:
+        for i in range(len(unique_methods)):
+            fw.write(json.dumps({'index': str(i), 'method': unique_methods[i], 'tokens': unique_method_tokens[i]}) + '\n')
+            fw.flush()
 
 
 def parse_args():
