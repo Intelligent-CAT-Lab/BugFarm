@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer
 import torch
 from utils import visual_atn_matrix, adjust_tokens, visual_matrix, analyze_least_attended_tokens
 import matplotlib.pyplot as plt
@@ -13,12 +13,17 @@ import os
 def main(args):
     # Init
     model_type = args.model_type
-    tokenizer = AutoTokenizer.from_pretrained(f"microsoft/{model_type}-base")
-    model = AutoModel.from_pretrained(f"microsoft/{model_type}-base")
-
-    os.system(f'mkdir -p {model_type}_attention_analysis/img')
+    if model_type == 'codet5':
+        tokenizer = RobertaTokenizer.from_pretrained(f"salesforce/{model_type}-base")
+        model = T5EncoderModel.from_pretrained(f"salesforce/{model_type}-base")
+    elif model_type == 'codebert':
+        tokenizer = AutoTokenizer.from_pretrained(f"microsoft/{model_type}-base")
+        model = AutoModel.from_pretrained(f"microsoft/{model_type}-base")
 
     project = args.project_name
+
+    os.system(f'mkdir -p {model_type}_{project}_attention_analysis/img')
+
     lines = []
     with open(f'data/{project}/unique_methods.jsonl') as fr:
         lines = fr.readlines()
@@ -65,7 +70,7 @@ def main(args):
 
         plt.figure(figsize=(7,7))
         ax = visual_matrix(averaged_attentions, decoded_tokens)
-        plt.savefig('{}_attention_analysis/img/{}_mat.png'.format(model_type, dct['index']), bbox_inches='tight')
+        plt.savefig('{}_{}_attention_analysis/img/{}_mat.png'.format(model_type, project, dct['index']), bbox_inches='tight')
 
         col_averaged = np.average(averaged_attentions, axis=0)
 
@@ -155,7 +160,7 @@ def main(args):
         ax2.grid(False)
         ax2.legend(loc=3)
         ax.legend(loc=4)
-        plt.savefig('{}_attention_analysis/img/{}.png'.format(model_type, dct['index']), bbox_inches='tight')
+        plt.savefig('{}_{}_attention_analysis/img/{}.png'.format(model_type, project, dct['index']), bbox_inches='tight')
 
         img_src = 'img/{}.png'.format(dct['index'])
         atn_mat_img_src = 'img/{}_mat.png'.format(dct['index'])
@@ -163,11 +168,11 @@ def main(args):
         table_rows += f'\n\t\t\t\t<tr>\n\t\t\t\t\t<td>{index}</td>\n\t\t\t\t\t<td>{token_str}</td>\n\t\t\t\t\t<td><img src={atn_mat_img_src}></td>\n\t\t\t\t\t<td><img src={img_src}></td>\n\t\t\t\t</tr>'
 
     table = f'<html>\n\t<head>\n\t\t<style type="text/css" media="screen">\n\t\t\ttable, th, td {{border: 1px solid black;}}\n\t\t\ttd, th {{word-wrap: break-word}}\n\t\t</style>\n\t</head>\n\t<body>\n\t\t<table>\n\t\t\t<tr>\n\t\t\t\t<th>Index</th>\n\t\t\t\t<th>Statements <br> (red = among least 10% of attended tokens) <br> (blue = among least 10% of attended statements) </th>\n\t\t\t\t<th>Attention Matrix (averaged over all layers and heads)</th>\n\t\t\t\t<th>Statement (unattended / all tokens)</th>\n\t\t\t</tr>{table_rows}\n\t\t</table>\n\t</body>\n</html>'
-    with open(f'{model_type}_attention_analysis/{project}_{model_type}.html', 'w') as fw:
+    with open(f'{model_type}_{project}_attention_analysis/{project}_{model_type}.html', 'w') as fw:
         fw.write(table)
 
     cat_freq = analyze_least_attended_tokens(project_least_attended_tokens)
-    with open(f'{model_type}_attention_analysis/freqs_{model_type}.json', 'w') as fp:
+    with open(f'{model_type}_{project}_attention_analysis/freqs.json', 'w') as fp:
         json.dump(cat_freq, fp)
 
     print('exclusion (length > 512) rate: ', round((excluded / len(lines) * 100), 2))
