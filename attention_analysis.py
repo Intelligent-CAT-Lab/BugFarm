@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer
+from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer, CodeGenModel
 import torch
 from utils import visual_atn_matrix, adjust_tokens, visual_matrix, analyze_least_attended_tokens
 import matplotlib.pyplot as plt
@@ -19,10 +19,13 @@ def main(args):
     elif model_type == 'codebert':
         tokenizer = AutoTokenizer.from_pretrained(f"microsoft/{model_type}-base")
         model = AutoModel.from_pretrained(f"microsoft/{model_type}-base")
+    elif model_type == 'codegen':
+        model = CodeGenModel.from_pretrained(f"salesforce/{model_type}-350M-mono")
+        tokenizer = AutoTokenizer.from_pretrained(f"salesforce/{model_type}-350M-mono")
 
     project = args.project_name
 
-    os.system(f'mkdir -p {model_type}_{project}_attention_analysis/img')
+    os.system(f'mkdir -p {model_type}_{project}_{args.average_layers}_{args.layer_num}_attention_analysis/img')
 
     lines = []
     with open(f'data/{project}/unique_methods.jsonl') as fr:
@@ -48,7 +51,10 @@ def main(args):
             excluded += 1
             continue
 
-        tokens = [tokenizer.cls_token]+nl_tokens+[tokenizer.sep_token]+code_tokens+[tokenizer.eos_token]
+        if model_type == 'codegen':
+            tokens = [tokenizer.bos_token]+nl_tokens+[tokenizer.bos_token]+code_tokens+[tokenizer.eos_token]
+        else:
+            tokens = [tokenizer.cls_token]+nl_tokens+[tokenizer.sep_token]+code_tokens+[tokenizer.eos_token]
 
         # Convert tokens to ids
         tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
@@ -58,21 +64,24 @@ def main(args):
         attentions = model(torch.tensor(tokens_ids)[None,:], output_attentions=True)['attentions']
 
         # Post-process attentions
-        zeros = np.zeros((len(decoded_tokens), len(decoded_tokens)))
-        for i in range(12):
-            zeros += visual_atn_matrix(decoded_tokens, attentions, layer_num=i, head_num='average')
-
-        averaged_attentions = zeros / 12
-
-        averaged_attentions, decoded_tokens_types = adjust_tokens(decoded_tokens, dct['tokens'], averaged_attentions)
+        if args.average_layers:
+            zeros = np.zeros((len(decoded_tokens), len(decoded_tokens)))
+            for i in range(args.num_layers):
+                zeros += visual_atn_matrix(decoded_tokens, attentions, layer_num=i, head_num='average')
+            
+            model_attentions = zeros / args.num_layers
+        else:
+            model_attentions = visual_atn_matrix(decoded_tokens, attentions, layer_num=args.layer_num, head_num='average')
+        
+        model_attentions, decoded_tokens_types = adjust_tokens(decoded_tokens, dct['tokens'], model_attentions)
 
         decoded_tokens = [x for x,y in decoded_tokens_types]
 
         plt.figure(figsize=(7,7))
-        ax = visual_matrix(averaged_attentions, decoded_tokens)
-        plt.savefig('{}_{}_attention_analysis/img/{}_mat.png'.format(model_type, project, dct['index']), bbox_inches='tight')
+        ax = visual_matrix(model_attentions, decoded_tokens)
+        plt.savefig('{}_{}_{}_{}_attention_analysis/img/{}_mat.png'.format(model_type, project, args.average_layers, args.layer_num, dct['index']), bbox_inches='tight')
 
-        col_averaged = np.average(averaged_attentions, axis=0)
+        col_averaged = np.average(model_attentions, axis=0)
 
         k = args.threshold
         token_attn = list(zip(decoded_tokens_types, col_averaged))
@@ -160,7 +169,7 @@ def main(args):
         ax2.grid(False)
         ax2.legend(loc=3)
         ax.legend(loc=4)
-        plt.savefig('{}_{}_attention_analysis/img/{}.png'.format(model_type, project, dct['index']), bbox_inches='tight')
+        plt.savefig('{}_{}_{}_{}_attention_analysis/img/{}.png'.format(model_type, project, args.average_layers, args.layer_num, dct['index']), bbox_inches='tight')
 
         img_src = 'img/{}.png'.format(dct['index'])
         atn_mat_img_src = 'img/{}_mat.png'.format(dct['index'])
@@ -168,11 +177,11 @@ def main(args):
         table_rows += f'\n\t\t\t\t<tr>\n\t\t\t\t\t<td>{index}</td>\n\t\t\t\t\t<td>{token_str}</td>\n\t\t\t\t\t<td><img src={atn_mat_img_src}></td>\n\t\t\t\t\t<td><img src={img_src}></td>\n\t\t\t\t</tr>'
 
     table = f'<html>\n\t<head>\n\t\t<style type="text/css" media="screen">\n\t\t\ttable, th, td {{border: 1px solid black;}}\n\t\t\ttd, th {{word-wrap: break-word}}\n\t\t</style>\n\t</head>\n\t<body>\n\t\t<table>\n\t\t\t<tr>\n\t\t\t\t<th>Index</th>\n\t\t\t\t<th>Statements <br> (red = among least 10% of attended tokens) <br> (blue = among least 10% of attended statements) </th>\n\t\t\t\t<th>Attention Matrix (averaged over all layers and heads)</th>\n\t\t\t\t<th>Statement (unattended / all tokens)</th>\n\t\t\t</tr>{table_rows}\n\t\t</table>\n\t</body>\n</html>'
-    with open(f'{model_type}_{project}_attention_analysis/{project}_{model_type}.html', 'w') as fw:
+    with open(f'{model_type}_{project}_{args.average_layers}_{args.layer_num}_attention_analysis/{project}_{model_type}.html', 'w') as fw:
         fw.write(table)
 
     cat_freq = analyze_least_attended_tokens(project_least_attended_tokens)
-    with open(f'{model_type}_{project}_attention_analysis/freqs.json', 'w') as fp:
+    with open(f'{model_type}_{project}_{args.average_layers}_{args.layer_num}_attention_analysis/freqs.json', 'w') as fp:
         json.dump(cat_freq, fp)
 
     print('exclusion (length > 512) rate: ', round((excluded / len(lines) * 100), 2))
@@ -184,6 +193,9 @@ def parse_args():
     parser.add_argument('--project_name', type=str, default='JacksonXml', help='defects4j project name to process and extract methods')
     parser.add_argument('--model_type', type=str, default='codebert', help='model to use in this experiment')
     parser.add_argument('--threshold', type=int, default=10, help='threshold for least attended tokens and statements')
+    parser.add_argument('--average_layers', type=lambda x: (str(x).lower() == 'true'), default=True, help='average attention scores of all layers in the model')
+    parser.add_argument('--layer_num', type=int, default=0, help='layer number when average_layers=False')
+    parser.add_argument('--num_layers', type=int, default=12, help='number of layers in the model')
     return parser.parse_args()
 
 if __name__ == '__main__':
