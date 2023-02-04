@@ -22,8 +22,8 @@ fi
 
 LOG_FILE_NAME=$1;
 
-# projects=("commons-cli" "jfreechart" "commons-codec" "commons-collections" "commons-compress" "commons-csv" "gson" "commons-lang" "commons-math" "commons-jxpath" "jackson-dataformat-xml" "jackson-core" "jackson-databind" "jsoup" "joda-time" "mockito")
-projects=("joda-time" "mockito")
+projects=("commons-cli" "jfreechart" "commons-codec" "commons-collections" "commons-compress" "commons-csv" "gson" "commons-lang" "commons-math" "commons-jxpath" "jackson-dataformat-xml" "jackson-core" "jackson-databind" "jsoup" "joda-time" "mockito")
+
 for project in "${projects[@]}"
 do
     python3 method_extractor.py --project_name $project --log_file $LOG_FILE_NAME;
