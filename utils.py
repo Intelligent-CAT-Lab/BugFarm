@@ -291,15 +291,8 @@ def adjust_tokens(bpe_tokens, java_tokens_types, attentions):
                 else:
                     print('exceptional case')
 
-    # testing if the new matrix dimension is correct after reducing and expanding it
-    decoded_tokens = []
-    for i in range(len(bpe_tokens[2:-1])):
-        if bpe_tokens[i+2] == '\n':
-            java_tokens_types.insert(i, ['\n', ['linebreak.java']])
-        decoded_tokens.append((bpe_tokens[i+2], java_tokens_types[i][1]))
-
     assert len(bpe_tokens) == attentions.shape[0]
-    return attentions[2:-1, 2:-1], decoded_tokens
+    return attentions[2:-1, 2:-1]
 
 
 def analyze_least_attended_tokens(project_lat):
