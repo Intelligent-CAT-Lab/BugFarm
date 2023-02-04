@@ -107,7 +107,7 @@ def main(args):
 
 def parse_args():
     parser = argparse.ArgumentParser("extract methods of a given java project")
-    parser.add_argument('--project_name', type=str, default='commons-cli', help='defects4j project name to process and extract methods')
+    parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to process and extract methods')
     parser.add_argument('--log_file', type=str, default='method_extractor.log', help='log file name for method extractor')
     return parser.parse_args()
 
