@@ -78,8 +78,6 @@ def main(args):
     logging.basicConfig(filename=f"logs/{args.log_file}", level=logging.INFO, format='%(asctime)s %(levelname)s %(module)s - %(funcName)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     logging.info(f'extracting method attentions from {args.project_name} using {args.model_type}')
 
-    device = torch.device(f"cuda:{args.gpu_id}" if torch.cuda.is_available() else "cpu") 
-
     if args.model_type == 'codet5':
         tokenizer = RobertaTokenizer.from_pretrained(f"salesforce/{args.model_type}-base")
         model = T5EncoderModel.from_pretrained(f"salesforce/{args.model_type}-base")
@@ -89,8 +87,6 @@ def main(args):
     elif args.model_type == 'codegen':
         model = CodeGenModel.from_pretrained(f"salesforce/{args.model_type}-350M-mono")
         tokenizer = AutoTokenizer.from_pretrained(f"salesforce/{args.model_type}-350M-mono")
-    
-    model.to(device)
 
     lines = []
     with open(f'data/{args.project_name}/unique_methods.jsonl') as fr:
@@ -113,7 +109,6 @@ def parse_args():
     parser.add_argument('--layer_num', type=int, default=0, help='layer number when average_layers=False')
     parser.add_argument('--num_layers', type=int, default=12, help='number of layers in the model')
     parser.add_argument('--log_file', type=str, default='attention_extractor.log', help='log file name')
-    parser.add_argument('--gpu_id', type=int, default=0, help='gpu_id')
     return parser.parse_args()
 
 if __name__ == '__main__':
