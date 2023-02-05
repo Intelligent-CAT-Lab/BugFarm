@@ -1,13 +1,13 @@
 function install_requirements() {
-    ansi==0.3.6;
-    git+https://github.com/jose/javalang.git@start_position_and_end_position;
-    matplotlib==3.3.4;
-    nltk==3.6.7
-    numpy==1.21.6
-    seaborn==0.12.2
-    torch==1.12.1
-    transformers==4.22.2
-    wordninja==2.0.0
+    pip3 install ansi==0.3.6;
+    pip3 install git+https://github.com/jose/javalang.git@start_position_and_end_position;
+    pip3 install matplotlib==3.3.4;
+    pip3 install nltk==3.6.7
+    pip3 install numpy==1.21.6
+    pip3 install seaborn==0.12.2
+    pip3 install torch==1.12.1
+    pip3 install transformers==4.22.2
+    pip3 install wordninja==2.0.0
 }
 
 function download_projects() {
