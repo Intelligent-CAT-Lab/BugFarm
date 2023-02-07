@@ -31,7 +31,7 @@ def main(args):
     
     table_rows = open('table_rows.txt', 'w')
     project_least_attended_tokens = open('least_attended_tokens.txt', 'w')
-    pool = multiprocessing.Pool(os.cpu_count())
+    pool = multiprocessing.Pool(args.num_workers)
     for i, _ in enumerate(pool.imap_unordered(process_instance, lines), 1):
         sys.stderr.write('\rpercentage of methods visualized: {0:%}'.format(i/len(lines)))
 
@@ -175,6 +175,7 @@ def parse_args():
     parser.add_argument('--average_layers', type=lambda x: (str(x).lower() == 'true'), default=True, help='average attention scores of all layers in the model')
     parser.add_argument('--layer_num', type=int, default=0, help='layer number when average_layers=False')
     parser.add_argument('--num_layers', type=int, default=12, help='number of layers in the model')
+    parser.add_argument('--num_workers', type=int, default=8, help='number of cpu cores to use for threading')
     return parser.parse_args()
 
 if __name__ == '__main__':

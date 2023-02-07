@@ -44,7 +44,6 @@ def process_file(target_file):
 
     intervals = parse_java_func_intervals(code_text)
     unique_name = target_file.replace('/', '.')
-    unique_name = unique_name.replace('$', '')
 
     for start, end in intervals:
         with counter.val.get_lock():
@@ -96,7 +95,7 @@ def main(args):
     os.makedirs(f'data/{args.project_name}', exist_ok=True)
 
     json_file = open(f"data/{args.project_name}/unique_methods.jsonl", "wt")
-    pool = multiprocessing.Pool(os.cpu_count())
+    pool = multiprocessing.Pool(args.num_workers)
 
     for i, _ in enumerate(pool.imap_unordered(process_file, source_paths), 1):
         sys.stderr.write('\rpercentage of source code files completed: {0:%}'.format(i/len(source_paths)))
@@ -109,6 +108,7 @@ def parse_args():
     parser = argparse.ArgumentParser("extract methods of a given java project")
     parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to process and extract methods')
     parser.add_argument('--log_file', type=str, default='method_extractor.log', help='log file name for method extractor')
+    parser.add_argument('--num_workers', type=int, default=8, help='number of cpu cores to use for threading')
     return parser.parse_args()
 
 if __name__ == '__main__':

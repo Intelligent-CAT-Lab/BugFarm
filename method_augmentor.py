@@ -77,7 +77,7 @@ def main(args):
 
     json_file = open(f"data/{args.project_name}/unique_methods_w_transformations.jsonl", "wt")
 
-    pool = multiprocessing.Pool(os.cpu_count())
+    pool = multiprocessing.Pool(args.num_workers)
 
     for i, _ in enumerate(pool.imap_unordered(process_method, lines), 1):
         sys.stderr.write('\rpercentage of methods augmented: {0:%}'.format(i/len(lines)))
@@ -90,6 +90,7 @@ def parse_args():
     parser = argparse.ArgumentParser("augment methods of a project in a semantically preserving manner")
     parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to augment')
     parser.add_argument('--log_file', type=str, default='method_augmentor.log', help='log file name')
+    parser.add_argument('--num_workers', type=int, default=8, help='number of cpu cores to use for threading')
     return parser.parse_args()
 
 if __name__ == '__main__':

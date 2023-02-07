@@ -58,7 +58,10 @@ def process_instance(l):
     else:
         model_attentions = visual_atn_matrix(decoded_tokens, attentions, layer_num=args.layer_num, head_num='average')
 
-    model_attentions, decoded_token_types = adjust_tokens(decoded_tokens, dct['tokens'], model_attentions)
+    try:
+        model_attentions, decoded_token_types = adjust_tokens(decoded_tokens, dct['tokens'], model_attentions)
+    except Exception:
+        return
 
     dct['model_attentions'] = model_attentions
     dct['decoded_token_types'] = decoded_token_types
@@ -94,7 +97,7 @@ def main(args):
     
     json_file = open(f"data/{args.project_name}/unique_methods_{args.model_type}_attnw.jsonl", "wt")
 
-    pool = multiprocessing.Pool(os.cpu_count())
+    pool = multiprocessing.Pool(args.num_workers)
     for i, _ in enumerate(pool.imap_unordered(process_instance, lines), 1):
         sys.stderr.write('\rpercentage of method attentions extracted: {0:%}'.format(i/len(lines)))
 
@@ -109,6 +112,7 @@ def parse_args():
     parser.add_argument('--layer_num', type=int, default=0, help='layer number when average_layers=False')
     parser.add_argument('--num_layers', type=int, default=12, help='number of layers in the model')
     parser.add_argument('--log_file', type=str, default='attention_extractor.log', help='log file name')
+    parser.add_argument('--num_workers', type=int, default=8, help='number of cpu cores to use for threading')
     return parser.parse_args()
 
 if __name__ == '__main__':

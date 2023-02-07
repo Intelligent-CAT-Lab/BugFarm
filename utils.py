@@ -290,6 +290,7 @@ def adjust_tokens(bpe_tokens, java_tokens_types, attentions):
                 
                 else:
                     print('exceptional case')
+                    raise Exception
 
     # testing if the new matrix dimension is correct after reducing and expanding it
     decoded_tokens = []

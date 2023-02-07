@@ -27,7 +27,6 @@ function download_projects() {
     git clone https://github.com/FasterXML/jackson-databind projects/jackson-databind;
     git clone https://github.com/jhy/jsoup projects/jsoup;
     git clone https://github.com/JodaOrg/joda-time projects/joda-time;
-    git clone https://github.com/mockito/mockito projects/mockito;
 }
 
 install_requirements;

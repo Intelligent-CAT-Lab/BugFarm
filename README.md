@@ -7,9 +7,9 @@ Please execute the following to install dependencies and download the projects:
 `sudo bash setup.sh`
 
 ## Method Extraction
-The first step is to extract the methods from the listed projects in `setup.sh`.
+The first step is to extract the methods from the listed projects in `setup.sh`. Execute the following to extract the methods using 8 CPU cores:
 
-`bash scripts/extract_methods.sh method_extractor.log`
+`bash scripts/extract_methods.sh method_extractor.log 8`
 
 This will create a log file which contains some stats about methods in `logs/method_extractor.log`. Moreover, it will store all methods and their metadata inside `data/$project/unique_methods.jsonl`. Each line in this file corresponds to a method and it comes in the following format:
 
@@ -26,3 +26,22 @@ This will create a log file which contains some stats about methods in `logs/met
 ```
 
 ## Attention Analysis
+The second step is to extract attention weights from the methods in `data/$project/unique_methods.jsonl`. Execute the following to extract attention weights of codebert on 8 CPU cores:
+
+`bash scripts/extract_attentions.sh attention_extractor.log codebert 12 8`
+
+This will create a log file which contains some stats about methods in `logs/attention_extractor.log`. Moreover, it will store all methods and their attention weights inside `data/$project/unique_methods_codebert_attnw.jsonl`.
+
+## Attention Visualization and LAT/LAS
+The third step is to visualize attention weights and determine Least Attended Tokens (LAT) and Least Attended Statements (LAS). Execute the following to visualize the attention weights of codebert and determine the LAT/LAS:
+
+`bash scripts/visualize_attentions.sh visualize_attention.log codebert 12 10 8`
+
+This will create an HTML file inside `visualizations/codebert_$project$_True_0_attention_analysis` which contains the visualizations.
+
+## Semantically Preserving Transformations
+This independent step is used to create semantically preserving transformations of existing methods in `data/$project/unique_methods.jsonl`. Execute the following to create transformations on 8 CPU cores:
+
+`bash scripts/augment_methods.sh method_augmentor.log 8`
+
+This will create method transformations inside `data/$project$/unique_methods_w_transformations.jsonl`
