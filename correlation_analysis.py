@@ -22,16 +22,16 @@ def main(args):
 
     if args.type == 'cross-model':
         iter1 = models
-        iter2 = projects
+        iter2 = [projects[projects.index(args.project)]]
 
     elif args.type == 'cross-project':
         iter1 = projects
-        iter2 = models
+        iter2 = [models[models.index(args.model)]]
 
     entries = {}
     for i in iter1:
         
-        entries.setdefault(i, {})
+        entries.setdefault(i, {x:0 for x in ["comment", "constant", "entity", "keyword", "linebreak", "meta", "punctuation", "source", "storage", "string", "variable"]})
 
         for j in iter2:
             
@@ -57,6 +57,8 @@ def main(args):
 def parse_args():
     parser = argparse.ArgumentParser("calculate cross-project and cross-model spearman correlations")
     parser.add_argument('--type', type=str, default='cross-project', help='cross-project or cross-model')
+    parser.add_argument('--project', type=str, default='commons-cli', help='project name')
+    parser.add_argument('--model', type=str, default='codebert', help='model name')
     return parser.parse_args()
 
 if __name__ == '__main__':
