@@ -24,7 +24,7 @@ fi
 LOG_FILE_NAME=$1;
 NUM_WORKERS=$2;
 
-projects=("commons-codec" "commons-collections" "commons-compress" "commons-csv" "commons-jxpath" "commons-lang" "commons-math" "gson" "jackson-core" "jackson-databind" "jackson-dataformat-xml" "joda-time" "jsoup")
+projects=("commons-cli" "commons-codec" "commons-collections" "commons-compress" "commons-csv" "commons-jxpath" "commons-lang" "commons-math" "gson" "jackson-core" "jackson-databind" "jackson-dataformat-xml" "jfreechart" "joda-time" "jsoup")
 
 for project in "${projects[@]}"
 do
