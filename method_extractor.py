@@ -28,7 +28,7 @@ def parse_java_func_intervals(content: str) -> Set[Tuple[int, int]]:
                 func_intervals.add(
                     (
                         node.start_position.line,
-                        node.end_position.line + 1,
+                        node.end_position.line,
                     )
                 )
         return func_intervals
