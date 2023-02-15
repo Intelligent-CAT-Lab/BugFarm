@@ -10,6 +10,14 @@ import sys
 import argparse
 import time
 import logging
+from json import JSONEncoder
+
+
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
 
 
 def main(args):
@@ -18,6 +26,7 @@ def main(args):
 
     global table_rows
     global project_least_attended_tokens
+    global json_file
 
     os.makedirs(f'logs', exist_ok=True)
     logging.basicConfig(filename=f"logs/{args.log_file}", level=logging.INFO, format='%(asctime)s %(levelname)s %(module)s - %(funcName)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
@@ -28,7 +37,9 @@ def main(args):
     lines = []
     with open(f'data/{args.project_name}/unique_methods_{args.model_type}_attnw.jsonl') as fr:
         lines = fr.readlines()
-    
+
+    json_file = open(f"data/{args.project_name}/unique_methods_{args.model_type}_las_lat.jsonl", "wt")
+
     table_rows = open('table_rows.txt', 'w')
     project_least_attended_tokens = open('least_attended_tokens.txt', 'w')
     pool = multiprocessing.Pool(args.num_workers)
@@ -109,9 +120,18 @@ def process_instance(input):
         record[i].append(unnormalized_lengths[i])
         record[i].append(record[i][1] / record[i][3])
 
-    attended_statements = sorted(record.items(), key=lambda item: item[1][4], reverse=True)
+    attended_statements = sorted(record.items(), key=lambda item: item[1][4])
 
-    least_attended_statements = attended_statements[:math.ceil((k/100) * len(attended_statements))]
+    res = []
+    for pair in attended_statements:
+        if pair[0] == 0:
+            res.append(pair)
+        elif pair[1][0].strip().startswith('//'):
+            res.append(pair)
+        else:
+            res.insert(0, pair)
+
+    least_attended_statements = res[:math.ceil((k/100) * len(res))]
 
     labels = []
     unattended_tokens = []
@@ -164,6 +184,12 @@ def process_instance(input):
     atn_mat_img_src = 'img/{}_mat.png'.format(dct['index'])
     index = dct['index']
     table_rows.write(f'\n\t\t\t\t<tr>\n\t\t\t\t\t<td>{index}</td>\n\t\t\t\t\t<td>{token_str}</td>\n\t\t\t\t\t<td><img src={atn_mat_img_src}></td>\n\t\t\t\t\t<td><img src={img_src}></td>\n\t\t\t\t</tr>')
+
+    dct['least_attended_tokens'] = [x[0][0] for x in least_attended_tokens]
+    dct['least_attended_statements'] = [x[0] for x in least_attended_statements]
+
+    json_file.write(json.dumps(dct, cls=NumpyArrayEncoder) + '\n')
+    json_file.flush()
 
 
 def parse_args():
