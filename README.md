@@ -38,10 +38,3 @@ The third step is to visualize attention weights and determine Least Attended To
 `bash scripts/visualize_attentions.sh visualize_attention.log codebert 12 10 8`
 
 This will create an HTML file inside `visualizations/codebert_$project$_True_0_attention_analysis` which contains the visualizations.
-
-## Semantically Preserving Transformations
-This independent step is used to create semantically preserving transformations of existing methods in `data/$project/unique_methods.jsonl`. Execute the following to create transformations on 8 CPU cores:
-
-`bash scripts/augment_methods.sh method_augmentor.log 8`
-
-This will create method transformations inside `data/$project$/unique_methods_w_transformations.jsonl`
