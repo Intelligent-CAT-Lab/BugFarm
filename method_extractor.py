@@ -44,6 +44,7 @@ def process_file(target_file):
 
     intervals = parse_java_func_intervals(code_text)
     unique_name = target_file.replace('/', '.')
+    unique_name = unique_name.replace('$', '')
 
     for start, end in intervals:
         with counter.val.get_lock():
