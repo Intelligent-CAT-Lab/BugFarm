@@ -33,7 +33,7 @@ def process_instance(l):
 
     code_tokens = tokenizer.tokenize(code)
 
-    if len(code_tokens) > 509:
+    if len(code_tokens) > tokenizer.model_max_length - 3:
         return
 
     if args.model_type == 'codegen':
