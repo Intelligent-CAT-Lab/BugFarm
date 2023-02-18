@@ -100,7 +100,7 @@ def get_multihead_atn_matrix(atns, layer_num=None, batch_num=None):
     layer = atns[layer_num]
 
     try:
-        multihead_atn_matrix = layer[batch_num].detach().numpy()  # pytorch
+        multihead_atn_matrix = layer[batch_num].detach().cpu().numpy()  # pytorch
     except TypeError:
         multihead_atn_matrix = layer[batch_num].cpu().numpy()  # pytorch
     except AttributeError:
