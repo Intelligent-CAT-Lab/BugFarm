@@ -76,7 +76,7 @@ def main(args):
         decoded_tokens = [tokenizer.decode(id_) for id_ in tokens_ids]
 
         # Extract the attentions
-        attentions = model(torch.tensor(tokens_ids)[None,:], output_attentions=True)['attentions']
+        attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True)['attentions']
 
         # Post-process attentions
         if args.average_layers:
