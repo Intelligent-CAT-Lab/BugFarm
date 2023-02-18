@@ -110,7 +110,6 @@ def parse_args():
     parser.add_argument('--layer_num', type=int, default=0, help='layer number when average_layers=False')
     parser.add_argument('--num_layers', type=int, default=12, help='number of layers in the model')
     parser.add_argument('--log_file', type=str, default='attention_extractor.log', help='log file name')
-    parser.add_argument('--num_workers', type=int, default=8, help='number of cpu cores to use for threading')
     parser.add_argument('--gpu_id', type=int, default=0, help='gpu id to use')
     return parser.parse_args()
 
