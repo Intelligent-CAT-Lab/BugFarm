@@ -1,3 +1,5 @@
+JAVA8_PATH="/usr/lib/jvm/java-1.8.0-openjdk-amd64"
+
 function install_requirements() {
     pip3 install ansi==0.3.6;
     pip3 install git+https://github.com/jose/javalang.git@start_position_and_end_position;
@@ -136,7 +138,7 @@ function build_projects {
     echo "|_commons-gson done";
 
     cd projects/commons-lang;
-    JAVA_HOME=`/usr/libexec/java_home -v 1.8` mvn test --log-file build.log;
+    JAVA_HOME=${JAVA8_PATH} mvn test --log-file build.log;
     cd $main;
 
     echo "|_commons-lang done";
@@ -178,7 +180,7 @@ function build_projects {
     echo "|_jsoup done";
 
     cd projects/joda-time;
-    JAVA_HOME=`/usr/libexec/java_home -v 1.8` mvn test --log-file build.log;
+    JAVA_HOME=${JAVA8_PATH} mvn test --log-file build.log;
     cd $main;
 
     echo "|_joda-time done";
