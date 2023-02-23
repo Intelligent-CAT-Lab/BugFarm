@@ -1,6 +1,11 @@
 # Intelligent-Bug-Generation
 In this project, we will find model vulnerabilities and change them to generate hard-to-find bugs.
 
+
+# Prequisites
+- python
+- Java, including Java 8 for some projects (commons-lang and joda-project)
+
 ## Dependencies
 Please execute the following to install dependencies and download the projects:
 

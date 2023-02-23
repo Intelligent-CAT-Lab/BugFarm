@@ -97,63 +97,94 @@ function build_projects {
     mvn test --log-file build.log;
     cd $main;
 
+    echo "|_commons-cli done";
+
     cd projects/jfreechart;
     mvn test --log-file build.log;
     cd $main;
+
+    echo "|_jfreechart done";
 
     cd projects/commons-codec;
     mvn test --log-file build.log;
     cd $main;
 
+    echo "|_commons-codec done";
+
     cd projects/commons-collections;
     mvn test --log-file build.log;
     cd $main;
+
+    echo "|_commons-collections done";
 
     cd projects/commons-compress;
     mvn test --log-file build.log;
     cd $main;
 
+    echo "|_commons-compress done";
+
     cd projects/commons-csv;
     mvn test --log-file build.log;
     cd $main;
+
+    echo "|_commons-csv done";
 
     cd projects/gson;
     mvn test --log-file build.log;
     cd $main;
 
+    echo "|_commons-gson done";
+
     cd projects/commons-lang;
     JAVA_HOME=`/usr/libexec/java_home -v 1.8` mvn test --log-file build.log;
     cd $main;
+
+    echo "|_commons-lang done";
 
     cd projects/commons-math;
     mvn test --log-file build.log;
     cd $main;
 
+    echo "|_commons-math done";
+
     cd projects/commons-jxpath;
     mvn test --log-file build.log;
     cd $main;
+
+    echo "|_commons-jxpath done";
 
     cd projects/jackson-dataformat-xml;
     mvn test --log-file build.log;
     cd $main;
 
+    echo "|_jackson-dataformat-xml done";
+
     cd projects/jackson-core;
     mvn test --log-file build.log;
     cd $main;
+
+    echo "|_jackson-core done";
 
     cd projects/jackson-databind;
     mvn test --log-file build.log;
     cd $main;
 
+    echo "|_jackson-databind done";
+
     cd projects/jsoup;
     mvn test --log-file build.log;
     cd $main;
 
+    echo "|_jsoup done";
+
     cd projects/joda-time;
     JAVA_HOME=`/usr/libexec/java_home -v 1.8` mvn test --log-file build.log;
     cd $main;
+
+    echo "|_joda-time done";
 }
 
 install_requirements;
 download_projects;
+echo "Now build projects";
 build_projects;
