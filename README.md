@@ -26,9 +26,9 @@ This will create a log file which contains some stats about methods in `logs/met
 ```
 
 ## Attention Analysis
-The second step is to extract attention weights from the methods in `data/$project/unique_methods.jsonl`. Execute the following to extract attention weights of codebert on 8 CPU cores:
+The second step is to extract attention weights from the methods in `data/$project/unique_methods.jsonl`. Execute the following to extract attention weights of codebert on GPU 0:
 
-`bash scripts/extract_attentions.sh attention_extractor.log codebert 12 8`
+`bash scripts/extract_attentions.sh attention_extractor.log codebert 12 0`
 
 This will create a log file which contains some stats about methods in `logs/attention_extractor.log`. Moreover, it will store all methods and their attention weights inside `data/$project/unique_methods_codebert_attnw.jsonl`.
 
