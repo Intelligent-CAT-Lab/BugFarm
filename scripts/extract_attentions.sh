@@ -4,7 +4,7 @@ export PYTHONIOENCODING=utf-8;
 
 function prompt() {
     echo;
-    echo "Syntax: bash scripts/extract_attentions.sh LOG_FILE_NAME MODEL_NAME NUM_LAYERS GPU_ID";
+    echo "Syntax: bash scripts/extract_attentions.sh LOG_FILE_NAME MODEL_NAME MODEL_SIZE GPU_ID";
     echo "LOG_FILE_NAME is required";
     echo "MODEL_NAME is required [one of codebert, codet5, codegen]";
     echo "MODEL_SIZE is required [one of small, base, large]";
