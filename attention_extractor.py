@@ -76,7 +76,7 @@ def main(args):
         decoded_tokens = [tokenizer.decode(id_) for id_ in tokens_ids]
 
         # Extract the attentions
-        key = 'encoder_attentions' if args.model_type == 'plbart' else 'attention'
+        key = 'encoder_attentions' if args.model_type == 'plbart' else 'attentions'
 
         attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True)[key]
 
