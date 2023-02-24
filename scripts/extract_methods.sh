@@ -7,6 +7,7 @@ function prompt() {
     echo "Syntax: bash scripts/extract_methods.sh LOG_FILE_NAME NUM_WORKERS";
     echo "LOG_FILE_NAME is required";
     echo "NUM_WORKERS is required";
+    echo "CODESEARCHNET_DIR is required";
     exit;
 }
 
@@ -17,16 +18,18 @@ while getopts ":h" option; do
     esac
 done
 
-if [[ $# < 2 ]]; then
+if [[ $# < 3 ]]; then
   prompt;
 fi
 
 LOG_FILE_NAME=$1;
-NUM_WORKERS=$2;
+NUM_WORKERS=$3;
+CODESEARCHNET_DIR=$2;
 
-projects=("commons-cli" "commons-codec" "commons-collections" "commons-compress" "commons-csv" "commons-jxpath" "commons-lang" "commons-math" "gson" "jackson-core" "jackson-databind" "jackson-dataformat-xml" "jfreechart" "joda-time" "jsoup")
+PATH_TO_JSONL_DIR="$CODESEARCHNET_DIR/java/final/jsonl";
+DATASETS=("valid")
 
-for project in "${projects[@]}"
-do
-    python3 method_extractor.py --project_name $project --log_file $LOG_FILE_NAME --num_workers $NUM_WORKERS;
+for dataset in ${DATASETS[@]};
+do 
+	python3 method_extractor.py --dataset "$dataset" --dir "$PATH_TO_JSONL_DIR/$dataset" --log_file $LOG_FILE_NAME --num_workers $NUM_WORKERS;
 done

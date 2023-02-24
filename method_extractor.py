@@ -11,7 +11,6 @@ from typing import Set, Tuple
 from utils import tokenize
 import logging
 
-
 class Counter(object):
     def __init__(self):
         self.val = multiprocessing.Value('i', 0)
@@ -36,45 +35,36 @@ def parse_java_func_intervals(content: str) -> Set[Tuple[int, int]]:
         return func_intervals
 
 
-def process_file(target_file):
+def process_line(target_line):
 
-    with open(target_file, mode='r', encoding="ISO-8859-1", errors='ignore') as r:
-        codelines = r.readlines()
-        code_text = ''.join(codelines)
+        # Java funcname has operator overloading
+        # so we use indexing for unique naming
 
-    intervals = parse_java_func_intervals(code_text)
-    unique_name = target_file.replace('/', '.')
-    unique_name = unique_name.replace('$', '')
-
-    for start, end in intervals:
-        with counter.val.get_lock():
+        with counter.val.get_lock() :
             index = counter.val.value
             counter.val.value += 1
 
-        method_text =  ''.join(codelines[start-1:end])
+        # unsafe !
+        data = eval(target_line)
 
-        if method_text.strip() == "": continue
+        with open(f'{index}.java', mode='w', encoding="ISO-8859-1", errors='ignore') as fw:
+            fw.write(data["code"])
 
-        with open(f'{unique_name}.{index}.java', mode='w', encoding="ISO-8859-1", errors='ignore') as fw:
-            fw.write(method_text)
-
-        os.system(f'tokenizer {unique_name}.{index}.java > {unique_name}.{index}.txt')
-        tokens = tokenize(f'{unique_name}.{index}.txt')
+        os.system(f'tokenizer {index}.java > {index}.txt')
+        tokens = tokenize(f'{index}.txt')
 
         instance = {}
         instance['index'] = str(index)
-        instance['project'] = args.project_name
-        instance['file_path'] = target_file
-        instance['start_line'] = str(start)
-        instance['end_line'] = str(end)
-        instance['method'] = method_text
+        instance['project'] = data["repo"]
+        instance['file_path'] = data["path"]
+        instance['method'] = data["code"]
         instance['tokens'] = tokens
 
         json_file.write(json.dumps(instance) + '\n')
         json_file.flush()
         
-        os.remove(f'{unique_name}.{index}.txt')
-        os.remove(f'{unique_name}.{index}.java')
+        os.remove(f'{index}.txt')
+        os.remove(f'{index}.java')
 
 
 def main(args):
@@ -86,28 +76,43 @@ def main(args):
 
     os.makedirs(f'logs', exist_ok=True)
     logging.basicConfig(filename=f"logs/{args.log_file}", level=logging.INFO, format='%(asctime)s %(levelname)s %(module)s - %(funcName)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    logging.info(f'extracting methods from {args.project_name}')
+    logging.info(f'extracting methods from {args.dataset} of CodeSearchNet-java')
 
     counter = Counter()
+    os.makedirs(f'data/{args.dataset}', exist_ok=True)
 
-    files = subprocess.Popen(["ls"] + glob.glob(f'projects/{args.project_name}/**/src/main/java/**/*.java', recursive=True), stdout=subprocess.PIPE)
-    source_paths = [x.decode('ascii').strip() for x in files.stdout.readlines()]
+    def get_file_number(filename) :
+        return int("".join([s for s in filename if s.isdigit()]))
 
-    os.makedirs(f'data/{args.project_name}', exist_ok=True)
 
-    json_file = open(f"data/{args.project_name}/unique_methods.jsonl", "wt")
-    pool = multiprocessing.Pool(args.num_workers)
+    total_methods_from_all_datasets = 0
+    for filename in [f for f in os.listdir(args.dir) if f.endswith("jsonl")] :
+    
+        json_file = open(f"data/{args.dataset}/methods_{get_file_number(filename)}.jsonl", "wt")
+        pool = multiprocessing.Pool(args.num_workers)
+        json_file.close()
 
-    for i, _ in enumerate(pool.imap_unordered(process_file, source_paths), 1):
-        sys.stderr.write('\rpercentage of source code files completed: {0:%}'.format(i/len(source_paths)))
+        # Get lines
+        with open(os.path.join(args.dir, filename), mode='r', encoding="ISO-8859-1", errors='ignore') as r:
+            datalines = r.readlines()
 
-    logging.info(f'total time in secs for {args.project_name}: ' + str(round(time.time() - start, 2)))
-    logging.info(f'total methods extracted from {args.project_name}: ' + str(counter.val.value))
+        for i, _ in enumerate(pool.imap_unordered(process_line, datalines), 1) :
+            sys.stderr.write('\rpercentage of file completed : {0:%}'.format(i/len(datalines)))
+
+        total_methods_extracted_from_file = counter.val.value
+        counter.val.value = 0
+        logging.info(f'total time in secs to extract method from {filename}: ' + str(round(time.time() - start, 2)))
+        logging.info(f'total methods extracted from {filename} : ' + str(total_methods_extracted_from_file))
+        total_methods_from_all_datasets += total_methods_extracted_from_file
+        counter.val.value = 0
+    
+    logging.info(f'Done, total methods extracted from {args.dataset}: ' + str(total_methods_from_all_datasets))
 
 
 def parse_args():
     parser = argparse.ArgumentParser("extract methods of a given java project")
-    parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to process and extract methods')
+    parser.add_argument('--dataset', type=str, required=True, help='dataset name (e.g. train, valid, or test')
+    parser.add_argument('--dir', type=str, required=True, help='path to directory which contains CodeSearchNet jsonl files')
     parser.add_argument('--log_file', type=str, default='method_extractor.log', help='log file name for method extractor')
     parser.add_argument('--num_workers', type=int, default=8, help='number of cpu cores to use for threading')
     return parser.parse_args()

@@ -12,11 +12,15 @@ Please execute the following to install dependencies and download the projects:
 `sudo bash setup.sh`
 
 ## Method Extraction
-The first step is to extract the methods from the listed projects in `setup.sh`. Execute the following to extract the methods using 8 CPU cores:
+The first step is to extract the methods from the listed projects in `setup.sh`. The following is the way to execute the extraction:
 
-`bash scripts/extract_methods.sh method_extractor.log 8`
+`bash scripts/extract_methods.sh {LOG_FILENAME} {PATH_TO_CODESEARCHNET_JAVA_DIR} {NUM_CPU_WORKER}`
 
-This will create a log file which contains some stats about methods in `logs/method_extractor.log`. Moreover, it will store all methods and their metadata inside `data/$project/unique_methods.jsonl`. Each line in this file corresponds to a method and it comes in the following format:
+"PATH_TO_CODESEARCHNET_JAVA_DIR" refers to the root path to the of the extracted CodeSearchNet dataset (that is, to the path that include both .pkl file).
+
+Inside the extract_methods.sh , you can adjust which dataset (from valid, train, test) that you want to use.
+
+The will create a log file which contains some stats about methods in `logs/{LOG_FILENAME}`. Moreover, it will store all methods and their metadata inside `data` (separated per train/test/valid) and per their file origin (e.g. train1.jsonl or train2.jsonl). Each line in this file corresponds to a method and it comes in the following format:
 
 ```
 {
