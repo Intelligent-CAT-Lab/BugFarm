@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer, CodeGenModel
+from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer, PLBartModel
 import torch
 from utils import visual_atn_matrix, adjust_tokens
 import numpy as np
@@ -32,14 +32,14 @@ def main(args):
     device = torch.device(f"cuda:{args.gpu_id}" if torch.cuda.is_available() else "cpu")
 
     if args.model_type == 'codet5':
-        tokenizer = RobertaTokenizer.from_pretrained(f"salesforce/{args.model_type}-base")
-        model = T5EncoderModel.from_pretrained(f"salesforce/{args.model_type}-base")
+        tokenizer = RobertaTokenizer.from_pretrained(f"salesforce/{args.model_type}-{args.model_size}")
+        model = T5EncoderModel.from_pretrained(f"salesforce/{args.model_type}-{args.model_size}")
     elif args.model_type == 'codebert':
-        tokenizer = AutoTokenizer.from_pretrained(f"microsoft/{args.model_type}-base")
-        model = AutoModel.from_pretrained(f"microsoft/{args.model_type}-base")
-    elif args.model_type == 'codegen':
-        model = CodeGenModel.from_pretrained(f"salesforce/{args.model_type}-350M-mono")
-        tokenizer = AutoTokenizer.from_pretrained(f"salesforce/{args.model_type}-350M-mono")
+        tokenizer = AutoTokenizer.from_pretrained(f"microsoft/{args.model_type}-{args.model_size}")
+        model = AutoModel.from_pretrained(f"microsoft/{args.model_type}-{args.model_size}")
+    elif args.model_type == 'plbart':
+        tokenizer = AutoTokenizer.from_pretrained(f"uclanlp/{args.model_type}-{args.model_size}")
+        model = PLBartModel.from_pretrained(f"uclanlp/{args.model_type}-{args.model_size}")
 
     model.to(device)
 
@@ -76,17 +76,18 @@ def main(args):
         decoded_tokens = [tokenizer.decode(id_) for id_ in tokens_ids]
 
         # Extract the attentions
-        attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True)['attentions']
+        key = 'encoder_attentions' if args.model_type == 'plbart' else 'attention'
+
+        attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True)[key]
+
+        num_layers = len(attentions)
 
         # Post-process attentions
-        if args.average_layers:
-            zeros = np.zeros((len(decoded_tokens), len(decoded_tokens)))
-            for i in range(args.num_layers):
-                zeros += visual_atn_matrix(decoded_tokens, attentions, layer_num=i, head_num='average')
-            
-            model_attentions = zeros / args.num_layers
-        else:
-            model_attentions = visual_atn_matrix(decoded_tokens, attentions, layer_num=args.layer_num, head_num='average')
+        zeros = np.zeros((len(decoded_tokens), len(decoded_tokens)))
+        for i in range(num_layers):
+            zeros += visual_atn_matrix(decoded_tokens, attentions, layer_num=i, head_num='average')
+        
+        model_attentions = zeros / num_layers
 
         try:
             model_attentions, decoded_token_types = adjust_tokens(decoded_tokens, dct['tokens'], model_attentions)
@@ -106,9 +107,7 @@ def parse_args():
     parser = argparse.ArgumentParser("extract attention weights of a project using a given model")
     parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to process and extract methods')
     parser.add_argument('--model_type', type=str, default='codebert', help='LLM to use in this experiment')
-    parser.add_argument('--average_layers', type=lambda x: (str(x).lower() == 'true'), default=True, help='average attention scores of all layers in the model')
-    parser.add_argument('--layer_num', type=int, default=0, help='layer number when average_layers=False')
-    parser.add_argument('--num_layers', type=int, default=12, help='number of layers in the model')
+    parser.add_argument('--model_size', type=str, default='base', help='model size to use in this experiment')
     parser.add_argument('--log_file', type=str, default='attention_extractor.log', help='log file name')
     parser.add_argument('--gpu_id', type=int, default=0, help='gpu id to use')
     return parser.parse_args()
