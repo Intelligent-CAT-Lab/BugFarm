@@ -59,7 +59,9 @@ def main(args):
 
         code_tokens = tokenizer.tokenize(code)
 
-        if len(code_tokens) > tokenizer.model_max_length - 3:
+        window_size = 1024 if args.model_type == 'plbart' else tokenizer.model_max_length
+
+        if len(code_tokens) > window_size - 3:
             continue
 
         tokens = [tokenizer.cls_token]+nl_tokens+[tokenizer.sep_token]+code_tokens+[tokenizer.eos_token]
