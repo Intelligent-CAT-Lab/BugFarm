@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer, PLBartModel
+from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer, PLBartModel, PLBartTokenizer
 import torch
 from utils import visual_atn_matrix, adjust_tokens
 import numpy as np
@@ -34,7 +34,7 @@ def main(args):
         tokenizer = AutoTokenizer.from_pretrained(f"microsoft/{args.model_type}-{args.model_size}")
         model = AutoModel.from_pretrained(f"microsoft/{args.model_type}-{args.model_size}")
     elif args.model_type == 'plbart':
-        tokenizer = AutoTokenizer.from_pretrained(f"uclanlp/{args.model_type}-{args.model_size}")
+        tokenizer = PLBartTokenizer.from_pretrained(f"uclanlp/{args.model_type}-{args.model_size}")
         model = PLBartModel.from_pretrained(f"uclanlp/{args.model_type}-{args.model_size}")
 
     model.to(device)
