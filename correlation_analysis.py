@@ -17,7 +17,7 @@ def get_spearman_corr(pair, dct):
 
 def main(args):
 
-    models = ['codebert', 'codet5', 'codegen']
+    models = ['codebert-base', 'codet5-small', 'codet5-base', 'codet5-large', 'plbart-base', 'plbart-large']
     projects = ["commons-cli", "commons-codec", "commons-collections", "commons-compress", "commons-csv", "commons-jxpath", "commons-lang", "commons-math", "gson", "jackson-core", "jackson-databind", "jackson-dataformat-xml", "jfreechart", "joda-time", "jsoup"]
 
     if args.type == 'cross-model':
