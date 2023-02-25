@@ -40,7 +40,7 @@ def main(args):
             elif args.type == 'cross-project':
                 prefix = f'{j}_{i}'
             
-            with open(f'visualizations/{prefix}_True_0_attention_analysis/freqs.json') as fr:
+            with open(f'visualizations/{prefix}_attention_analysis/freqs.json') as fr:
                 data = json.load(fr)
 
                 for k in data:
