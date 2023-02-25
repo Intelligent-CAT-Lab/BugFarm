@@ -26,15 +26,15 @@ This will create a log file which contains some stats about methods in `logs/met
 ```
 
 ## Attention Analysis
-The second step is to extract attention weights from the methods in `data/$project/unique_methods.jsonl`. Execute the following to extract attention weights of codebert on GPU 0:
+The second step is to extract attention weights from the methods in `data/$project/unique_methods.jsonl`. Execute the following to extract attention weights of codebert-base on GPU 0:
 
-`bash scripts/extract_attentions.sh attention_extractor.log codebert 12 0`
+`bash scripts/extract_attentions.sh attention_extractor.log codebert base 0`
 
-This will create a log file which contains some stats about methods in `logs/attention_extractor.log`. Moreover, it will store all methods and their attention weights inside `data/$project/unique_methods_codebert_attnw.jsonl`.
+This will create a log file which contains some stats about methods in `logs/attention_extractor.log`. Moreover, it will store all methods and their attention weights inside `data/$project/unique_methods_codebert-base_attnw.jsonl`.
 
 ## Attention Visualization and LAT/LAS
-The third step is to visualize attention weights and determine Least Attended Tokens (LAT) and Least Attended Statements (LAS). Execute the following to visualize the attention weights of codebert and determine the LAT/LAS:
+The third step is to visualize attention weights and determine Least Attended Tokens (LAT) and Least Attended Statements (LAS). Execute the following to visualize the attention weights of codebert-base and determine the LAT/LAS on 8 CPU cores:
 
-`bash scripts/visualize_attentions.sh visualize_attention.log codebert 12 10 8`
+`bash scripts/visualize_attentions.sh visualize_attention.log codebert base 10 8`
 
-This will create an HTML file inside `visualizations/codebert_$project$_True_0_attention_analysis` which contains the visualizations.
+This will create an HTML file inside `visualizations/codebert_base_$project$_attention_analysis` which contains the visualizations.
