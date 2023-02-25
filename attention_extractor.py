@@ -27,7 +27,7 @@ def main(args):
 
     os.makedirs(f'logs', exist_ok=True)
     logging.basicConfig(filename=f"logs/{args.log_file}", level=logging.INFO, format='%(asctime)s %(levelname)s %(module)s - %(funcName)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    logging.info(f'extracting method attentions from {args.project_name} using {args.model_type}')
+    logging.info(f'extracting method attentions from {args.project_name} using {args.model_type}-{args.model_size}')
 
     device = torch.device(f"cuda:{args.gpu_id}" if torch.cuda.is_available() else "cpu")
 
@@ -47,7 +47,7 @@ def main(args):
     with open(f'data/{args.project_name}/unique_methods.jsonl') as fr:
         lines = fr.readlines()
     
-    json_file = open(f"data/{args.project_name}/unique_methods_{args.model_type}_attnw.jsonl", "wt")
+    json_file = open(f"data/{args.project_name}/unique_methods_{args.model_type}-{args.model_size}_attnw.jsonl", "wt")
 
     for l in lines:
 
@@ -66,10 +66,7 @@ def main(args):
         if len(code_tokens) > tokenizer.model_max_length - 3:
             continue
 
-        if args.model_type == 'codegen':
-            tokens = [tokenizer.bos_token]+nl_tokens+[tokenizer.bos_token]+code_tokens+[tokenizer.eos_token]
-        else:
-            tokens = [tokenizer.cls_token]+nl_tokens+[tokenizer.sep_token]+code_tokens+[tokenizer.eos_token]
+        tokens = [tokenizer.cls_token]+nl_tokens+[tokenizer.sep_token]+code_tokens+[tokenizer.eos_token]
 
         # Convert tokens to ids
         tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
@@ -100,7 +97,7 @@ def main(args):
         json_file.write(json.dumps(dct, cls=NumpyArrayEncoder) + '\n')
         json_file.flush()
 
-    logging.info(f'total time in secs for {args.project_name} using {args.model_type}: ' + str(round(time.time() - start, 2)))
+    logging.info(f'total time in secs for {args.project_name} using {args.model_type}-{args.model_size}: ' + str(round(time.time() - start, 2)))
 
 
 def parse_args():

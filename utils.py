@@ -248,7 +248,7 @@ def adjust_tokens(bpe_tokens, java_tokens_types, attentions):
 
     while code_index < len(java_tokens):
 
-        if bpe_tokens[bpe_index] in ['<s>', '</s>', '\n', '<|endoftext|>']:
+        if bpe_tokens[bpe_index] in ['<s>', '</s>', '\n']:
             bpe_index += 1
             continue
 
