@@ -64,7 +64,7 @@ def main(args):
     os.remove('table_rows.txt')
     os.remove('least_attended_tokens.txt')
 
-    logging.info(f'total time in secs for visualizing {args.project_name} using {args.model_type}: ' + str(round(time.time() - start, 2)))
+    logging.info(f'total time in secs for visualizing {args.project_name} using {args.model_type}-{args.model_size}: ' + str(round(time.time() - start, 2)))
 
 
 def process_instance(input):
