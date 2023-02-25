@@ -19,10 +19,6 @@ class NumpyArrayEncoder(JSONEncoder):
 
 
 def main(args):
-    global tokenizer
-    global model
-    global json_file
-
     start = time.time()
 
     os.makedirs(f'logs', exist_ok=True)
