@@ -4,10 +4,10 @@ export PYTHONIOENCODING=utf-8;
 
 function prompt() {
     echo;
-    echo "Syntax: bash scripts/visualize_attentions.sh LOG_FILE_NAME MODEL_NAME NUM_LAYERS THRESHOLD NUM_WORKERS";
+    echo "Syntax: bash scripts/visualize_attentions.sh LOG_FILE_NAME MODEL_NAME MODEL_SIZE THRESHOLD NUM_WORKERS";
     echo "LOG_FILE_NAME is required";
     echo "MODEL_NAME is required [one of codebert, codet5, codegen]";
-    echo "NUM_LAYERS is required [12 for codebert, codet5. 20 for codegen]";
+    echo "MODEL_SIZE is required [one of small, base, large]";
     echo "THRESHOLD is required";
     echo "NUM_WORKERS is required";    
     exit;
@@ -26,7 +26,7 @@ fi
 
 LOG_FILE_NAME=$1;
 MODEL_NAME=$2;
-NUM_LAYERS=$3;
+MODEL_SIZE=$3;
 THRESHOLD=$4;
 NUM_WORKERS=$5;
 
@@ -34,5 +34,5 @@ projects=("commons-cli" "commons-codec" "commons-collections" "commons-compress"
 
 for project in "${projects[@]}"
 do
-    python3 visualize_attention.py --project_name $project --log_file $LOG_FILE_NAME --model_type $MODEL_NAME --num_layers $NUM_LAYERS --threshold $THRESHOLD --num_workers $NUM_WORKERS;
+    python3 visualize_attention.py --project_name $project --model_type $MODEL_NAME --model_size $MODEL_SIZE --log_file $LOG_FILE_NAME --threshold $THRESHOLD --num_workers $NUM_WORKERS;
 done

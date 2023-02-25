@@ -30,15 +30,15 @@ def main(args):
 
     os.makedirs(f'logs', exist_ok=True)
     logging.basicConfig(filename=f"logs/{args.log_file}", level=logging.INFO, format='%(asctime)s %(levelname)s %(module)s - %(funcName)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    logging.info(f'visualizing {args.project_name} using {args.model_type}')
+    logging.info(f'visualizing {args.project_name} using {args.model_type}-{args.model_size}')
 
-    os.system(f'mkdir -p visualizations/{args.model_type}_{args.project_name}_{args.average_layers}_{args.layer_num}_attention_analysis/img')
+    os.system(f'mkdir -p visualizations/{args.model_type}_{args.model_size}_{args.project_name}_attention_analysis/img')
 
     lines = []
-    with open(f'data/{args.project_name}/unique_methods_{args.model_type}_attnw.jsonl') as fr:
+    with open(f'data/{args.project_name}/unique_methods_{args.model_type}-{args.model_size}_attnw.jsonl') as fr:
         lines = fr.readlines()
 
-    json_file = open(f"data/{args.project_name}/unique_methods_{args.model_type}_las_lat.jsonl", "wt")
+    json_file = open(f"data/{args.project_name}/unique_methods_{args.model_type}-{args.model_size}_las_lat.jsonl", "wt")
 
     table_rows = open('table_rows.txt', 'w')
     project_least_attended_tokens = open('least_attended_tokens.txt', 'w')
@@ -50,7 +50,7 @@ def main(args):
         content = fr.read()
 
     table = f'<html>\n\t<head>\n\t\t<style type="text/css" media="screen">\n\t\t\ttable, th, td {{border: 1px solid black;}}\n\t\t\ttd, th {{word-wrap: break-word}}\n\t\t</style>\n\t</head>\n\t<body>\n\t\t<table>\n\t\t\t<tr>\n\t\t\t\t<th>Index</th>\n\t\t\t\t<th>Statements <br> (red = among least 10% of attended tokens) <br> (blue = among least 10% of attended statements) </th>\n\t\t\t\t<th>Attention Matrix (averaged over all layers and heads)</th>\n\t\t\t\t<th>Statement (unattended / all tokens)</th>\n\t\t\t</tr>{content}\n\t\t</table>\n\t</body>\n</html>'
-    with open(f'visualizations/{args.model_type}_{args.project_name}_{args.average_layers}_{args.layer_num}_attention_analysis/{args.project_name}_{args.model_type}.html', 'w') as fw:
+    with open(f'visualizations/{args.model_type}_{args.model_size}_{args.project_name}_attention_analysis/{args.project_name}_{args.model_type}.html', 'w') as fw:
         fw.write(table)
     
     with open('least_attended_tokens.txt') as fr:
@@ -58,7 +58,7 @@ def main(args):
     
     res = [ast.literal_eval(x) for x in project_least_attended_tokens]
     cat_freq = analyze_least_attended_tokens(res)
-    with open(f'visualizations/{args.model_type}_{args.project_name}_{args.average_layers}_{args.layer_num}_attention_analysis/freqs.json', 'w') as fp:
+    with open(f'visualizations/{args.model_type}_{args.model_size}_{args.project_name}_attention_analysis/freqs.json', 'w') as fp:
         json.dump(cat_freq, fp)
 
     os.remove('table_rows.txt')
@@ -75,7 +75,7 @@ def process_instance(input):
 
     plt.figure(figsize=(7,7))
     ax = visual_matrix(model_attentions, decoded_tokens)
-    plt.savefig('visualizations/{}_{}_{}_{}_attention_analysis/img/{}_mat.png'.format(args.model_type, args.project_name, args.average_layers, args.layer_num, dct['index']), bbox_inches='tight')
+    plt.savefig('visualizations/{}_{}_{}_attention_analysis/img/{}_mat.png'.format(args.model_type, args.model_size, args.project_name, dct['index']), bbox_inches='tight')
     plt.close()
 
     col_averaged = np.average(model_attentions, axis=0)
@@ -177,7 +177,7 @@ def process_instance(input):
     ax2.grid(False)
     ax2.legend(loc=3)
     ax.legend(loc=4)
-    plt.savefig('visualizations/{}_{}_{}_{}_attention_analysis/img/{}.png'.format(args.model_type, args.project_name, args.average_layers, args.layer_num, dct['index']), bbox_inches='tight')
+    plt.savefig('visualizations/{}_{}_{}_attention_analysis/img/{}.png'.format(args.model_type, args.model_size, args.project_name, dct['index']), bbox_inches='tight')
     plt.close()
 
     img_src = 'img/{}.png'.format(dct['index'])
@@ -196,11 +196,9 @@ def parse_args():
     parser = argparse.ArgumentParser("visualize attention weights of a given java project and locate least attended statements")
     parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to visualize its attentions')
     parser.add_argument('--model_type', type=str, default='codebert', help='model to use in this experiment')
+    parser.add_argument('--model_size', type=str, default='base', help='model size to use in this experiment')
     parser.add_argument('--log_file', type=str, default='visualize_attention.log', help='log file name')
     parser.add_argument('--threshold', type=int, default=10, help='threshold for least attended tokens and statements')
-    parser.add_argument('--average_layers', type=lambda x: (str(x).lower() == 'true'), default=True, help='average attention scores of all layers in the model')
-    parser.add_argument('--layer_num', type=int, default=0, help='layer number when average_layers=False')
-    parser.add_argument('--num_layers', type=int, default=12, help='number of layers in the model')
     parser.add_argument('--num_workers', type=int, default=8, help='number of cpu cores to use for threading')
     return parser.parse_args()
 
