@@ -36,6 +36,10 @@ def main(args):
     with open(f'data/{args.project_name}/unique_methods_{args.model_type}-{args.model_size}_chatgpt.jsonl', 'r') as f:
         num_lines = len(f.readlines())
 
+    if num_lines == len(lines):
+        print('all lines have been processed')
+        return
+
     lines = lines[num_lines:]
 
     for l in tqdm(lines):
