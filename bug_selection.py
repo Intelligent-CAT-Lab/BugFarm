@@ -5,7 +5,8 @@ import numpy as np
 import math
 import json
 import difflib
-from tqdm import tqdm
+import sys
+import multiprocessing
 from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer, PLBartModel, PLBartTokenizer
 from utils import visual_atn_matrix, adjust_tokens
 
@@ -68,7 +69,79 @@ def get_least_attended_stmts(model_attentions, decoded_token_types):
     return least_attended_statements
 
 
+def process_instance(line):
+
+    dct = ast.literal_eval(line)
+
+    for bug_num in range(3):
+
+        method = dct[f'buggy_method{bug_num+1}']
+
+        if method.strip() == '':
+            continue
+
+        dct['selected_bugs'] = []
+        nl_tokens = tokenizer.tokenize("")
+        statements = method.split('\n')
+        statements = [x.strip() for x in statements if x.strip() != '']
+        code = '\n'.join(statements)
+
+        code_tokens = tokenizer.tokenize(code)
+
+        window_size = 1024 if args.model_type == 'plbart' else tokenizer.model_max_length
+
+        if len(code_tokens) > window_size - 3:
+            continue
+
+        tokens = [tokenizer.cls_token]+nl_tokens+[tokenizer.sep_token]+code_tokens+[tokenizer.eos_token]
+
+        # Convert tokens to ids
+        tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
+        decoded_tokens = [tokenizer.decode(id_) for id_ in tokens_ids]
+
+        # Extract the attentions
+        key = 'encoder_attentions' if args.model_type == 'plbart' else 'attentions'
+
+        attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True)[key]
+
+        num_layers = len(attentions)
+
+        # Post-process attentions
+        zeros = np.zeros((len(decoded_tokens), len(decoded_tokens)))
+        for i in range(num_layers):
+            zeros += visual_atn_matrix(decoded_tokens, attentions, layer_num=i, head_num='average')
+        
+        model_attentions = zeros / num_layers
+
+        try:
+            model_attentions, decoded_token_types = adjust_tokens(decoded_tokens, dct[f'buggy_method_{bug_num}_tokens'], model_attentions)
+        except Exception:
+            continue
+
+        least_attended_stmts = get_least_attended_stmts(model_attentions, decoded_token_types)
+
+        original_code = dct['method']
+
+        f1 = [line.strip() + '\n' for line in original_code.strip().split('\n')]
+        f2 = [line.strip() + '\n' for line in code.strip().split('\n')]
+
+        delta = difflib.unified_diff(f1, f2, fromfile='original', tofile='current')
+
+        for line in delta:
+            if not line.strip().startswith('+++') and line.strip().startswith('+'):
+                changed_added_stmt = line.strip()[1:].strip()
+                for idx in least_attended_stmts:
+                    if ''.join(idx[1][0].strip().split()) == ''.join(changed_added_stmt.split()) and bug_num+1 not in dct['selected_bugs']:
+                        dct['selected_bugs'].append(bug_num+1)
+                        stats['total_selected_bugs'] += 1
+    
+    json_file.write(json.dumps(dct) + '\n')
+    json_file.flush()
+
+
 def main(args):
+    global tokenizer, model, stats, json_file, device
+
     project = args.project_name
     model_type = args.model_type
     model_size = args.model_size
@@ -95,77 +168,23 @@ def main(args):
     with open(filename, 'r') as f:
         lines = f.readlines()
 
-    total_selected_bugs = 0
+    manager = multiprocessing.Manager()
 
-    for line in tqdm(lines):
-        dct = ast.literal_eval(line)
+    stats = manager.dict({'total_selected_bugs': 0})
 
-        for bug_num in range(3):
+    pool = multiprocessing.Pool(8)
 
-            method = dct[f'buggy_method{bug_num+1}']
-            dct['selected_bugs'] = []
-            nl_tokens = tokenizer.tokenize("")
-            statements = method.split('\n')
-            statements = [x.strip() for x in statements if x.strip() != '']
-            code = '\n'.join(statements)
+    for i, _ in enumerate(pool.imap_unordered(process_instance, lines), 1):
+        sys.stderr.write('\rpercentage of instances completed: {0:%}'.format(i/len(lines)))
 
-            code_tokens = tokenizer.tokenize(code)
-
-            window_size = 1024 if args.model_type == 'plbart' else tokenizer.model_max_length
-
-            if len(code_tokens) > window_size - 3:
-                continue
-
-            tokens = [tokenizer.cls_token]+nl_tokens+[tokenizer.sep_token]+code_tokens+[tokenizer.eos_token]
-
-            # Convert tokens to ids
-            tokens_ids = tokenizer.convert_tokens_to_ids(tokens)
-            decoded_tokens = [tokenizer.decode(id_) for id_ in tokens_ids]
-
-            # Extract the attentions
-            key = 'encoder_attentions' if args.model_type == 'plbart' else 'attentions'
-
-            attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True)[key]
-
-            num_layers = len(attentions)
-
-            # Post-process attentions
-            zeros = np.zeros((len(decoded_tokens), len(decoded_tokens)))
-            for i in range(num_layers):
-                zeros += visual_atn_matrix(decoded_tokens, attentions, layer_num=i, head_num='average')
-            
-            model_attentions = zeros / num_layers
-
-            try:
-                model_attentions, decoded_token_types = adjust_tokens(decoded_tokens, dct[f'buggy_method_{bug_num}_tokens'], model_attentions)
-            except Exception:
-                continue
-
-            least_attended_stmts = get_least_attended_stmts(model_attentions, decoded_token_types)
-
-            original_code = dct['method']
-
-            f1 = [line.strip() + '\n' for line in original_code.strip().split('\n')]
-            f2 = [line.strip() + '\n' for line in code.strip().split('\n')]
-
-            delta = difflib.unified_diff(f1, f2, fromfile='original', tofile='current')
-
-            for line in delta:
-                if not line.strip().startswith('+++') and line.strip().startswith('+'):
-                    changed_added_stmt = line.strip()[1:].strip()
-                    for idx in least_attended_stmts:
-                        if ''.join(idx[1][0].strip().split()) == ''.join(changed_added_stmt.split()) and bug_num+1 not in dct['selected_bugs']:
-                            dct['selected_bugs'].append(bug_num+1)
-                            total_selected_bugs += 1
-
-        json_file.write(json.dumps(dct) + '\n')
-        json_file.flush()
+    total_selected_bugs = stats['total_selected_bugs']
 
     print(f'Total selected bugs for {project}: {total_selected_bugs}')
 
+
 def parse_args():
     parser = argparse.ArgumentParser("extract chatgpt responses")
-    parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to process and extract methods')
+    parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to process chatgpt responses')
     parser.add_argument('--model_type', type=str, default='codebert', help='LLM to use in this experiment')
     parser.add_argument('--model_size', type=str, default='base', help='model size to use in this experiment')
     return parser.parse_args()

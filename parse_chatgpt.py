@@ -3,7 +3,8 @@ import javalang
 import json
 import argparse
 import os
-from tqdm import tqdm
+import sys
+import multiprocessing
 from utils import tokenize
 
 
@@ -52,7 +53,110 @@ def remove_stmt_ids(method):
     return '\n'.join(new_method)
 
 
+def process_instance(line):
+    dct = ast.literal_eval(line)
+
+    stats['total_time'] += dct['duration']
+    index = dct['index']
+    response = dct['chatgpt_response']
+    method = dct['method']
+
+    if '<start1>' not in response and '<end1>' not in response or '</start1>' in response and '</end1>' in response:
+        
+        if '```' in response:
+            response = response[:response.find('```')] + '<start1>' + response[response.find('```')+3:response.find('```', response.find('```')+3)] + '<end1>' + response[response.find('```', response.find('```')+3)+3:]
+        elif '</start1>' in response:
+            response = response[:response.find('<start1>')] + '<start1>' + response[response.find('<start1>')+len('<start1>'):response.find('</start1>')] + '<end1>' + response[response.find('</start1>')+len('</start1>'):]
+        else:
+            stats['total_unsuccessful'] += 1
+            return
+
+    if '<start2>' not in response and '<end2>' not in response or '</start2>' in response and '</end2>' in response:
+        
+        if '```' in response:
+            response = response[:response.find('```')] + '<start2>' + response[response.find('```')+3:response.find('```', response.find('```')+3)] + '<end2>' + response[response.find('```', response.find('```')+3)+3:]
+        elif '</start2>' in response:
+            response = response[:response.find('<start2>')] + '<start2>' + response[response.find('<start2>')+len('<start2>'):response.find('</start2>')] + '<end2>' + response[response.find('</start2>')+len('</start2>'):]
+        else:
+            stats['total_unsuccessful'] += 1
+            return
+
+    if '<start3>' not in response and '<end3>' not in response or '</start3>' in response and '</end3>' in response:
+            
+        if '```' in response:
+            response = response[:response.find('```')] + '<start3>' + response[response.find('```')+3:response.find('```', response.find('```')+3)] + '<end3>' + response[response.find('```', response.find('```')+3)+3:]
+        elif '</start3>' in response:
+            response = response[:response.find('<start3>')] + '<start3>' + response[response.find('<start3>')+len('<start3>'):response.find('</start3>')] + '<end3>' + response[response.find('</start3>')+len('</start3>'):]
+        else:
+            stats['total_unsuccessful'] += 1
+            return
+
+    buggy_method1 = response[response.find("<start1>")+len("<start1>"):response.find("<end1>")]
+
+    buggy_method2 = response[response.find("<start2>")+len("<start2>"):response.find("<end2>")]
+
+    buggy_method3 = response[response.find("<start3>")+len("<start3>"):response.find("<end3>")]
+
+    buggy_method1 = remove_stmt_ids(buggy_method1)
+    buggy_method2 = remove_stmt_ids(buggy_method2)
+    buggy_method3 = remove_stmt_ids(buggy_method3)
+
+    if is_equal(buggy_method1, method):
+        stats['total_unchanged'] += 1
+        return
+
+    if is_equal(buggy_method2, method):
+        stats['total_unchanged'] += 1
+        return
+    
+    if is_equal(buggy_method3, method):
+        stats['total_unchanged'] += 1
+        return
+
+    try:
+        javalang.parse.parse('class Dummy {' + buggy_method1 + '}')
+    except:
+        stats['total_non_parseable'] += 1
+        return
+    
+    try:
+        javalang.parse.parse('class Dummy {' + buggy_method2 + '}')
+    except:
+        stats['total_non_parseable'] += 1
+        return
+
+    try:
+        javalang.parse.parse('class Dummy {' + buggy_method3 + '}')
+    except:
+        stats['total_non_parseable'] += 1
+        return
+
+    for i, method_text in enumerate([buggy_method1, buggy_method2, buggy_method3]):
+        with open(f'{index}.java', mode='w', encoding="ISO-8859-1", errors='ignore') as fw:
+            fw.write(method_text)
+
+        os.system(f'tokenizer {index}.java > {index}.txt')
+        tokens = tokenize(f'{index}.txt')
+
+        dct['buggy_method_' + str(i) + '_tokens'] = tokens
+
+        os.system(f'rm {index}.java')
+        os.system(f'rm {index}.txt')
+
+    # save generated methods which are sound and correct
+    dct['buggy_method1'] = buggy_method1
+    dct['buggy_method2'] = buggy_method2
+    dct['buggy_method3'] = buggy_method3
+
+    json_file.write(json.dumps(dct) + '\n')
+    json_file.flush()
+
+
 def main(args):
+
+    global stats
+    global json_file
+
     project = args.project_name
     model_type = args.model_type
     model_size = args.model_size
@@ -65,116 +169,20 @@ def main(args):
     with open(filename, 'r') as f:
         lines = f.readlines()
 
-    total_time = 0
-    total_unsuccessful = 0
-    total_unchanged = 0
-    total_non_parseable = 0
+    manager = multiprocessing.Manager()
 
-    for line in tqdm(lines):
+    stats = manager.dict({'total_time': 0, 'total_unsuccessful': 0, 'total_unchanged': 0, 'total_non_parseable': 0})
 
-        dct = ast.literal_eval(line)
+    pool = multiprocessing.Pool(8)
 
-        total_time += dct['duration']
-        index = dct['index']
-        response = dct['chatgpt_response']
-        method = dct['method']
-
-        if '<start1>' not in response and '<end1>' not in response or '</start1>' in response and '</end1>' in response:
-            
-            if '```' in response:
-                response = response[:response.find('```')] + '<start1>' + response[response.find('```')+3:response.find('```', response.find('```')+3)] + '<end1>' + response[response.find('```', response.find('```')+3)+3:]
-            elif '</start1>' in response:
-                response = response[:response.find('<start1>')] + '<start1>' + response[response.find('<start1>')+len('<start1>'):response.find('</start1>')] + '<end1>' + response[response.find('</start1>')+len('</start1>'):]
-            else:
-                total_unsuccessful += 1
-                continue
-
-        if '<start2>' not in response and '<end2>' not in response or '</start2>' in response and '</end2>' in response:
-            
-            if '```' in response:
-                response = response[:response.find('```')] + '<start2>' + response[response.find('```')+3:response.find('```', response.find('```')+3)] + '<end2>' + response[response.find('```', response.find('```')+3)+3:]
-            elif '</start2>' in response:
-                response = response[:response.find('<start2>')] + '<start2>' + response[response.find('<start2>')+len('<start2>'):response.find('</start2>')] + '<end2>' + response[response.find('</start2>')+len('</start2>'):]
-            else:
-                total_unsuccessful += 1
-                continue
-
-        if '<start3>' not in response and '<end3>' not in response or '</start3>' in response and '</end3>' in response:
-                
-            if '```' in response:
-                response = response[:response.find('```')] + '<start3>' + response[response.find('```')+3:response.find('```', response.find('```')+3)] + '<end3>' + response[response.find('```', response.find('```')+3)+3:]
-            elif '</start3>' in response:
-                response = response[:response.find('<start3>')] + '<start3>' + response[response.find('<start3>')+len('<start3>'):response.find('</start3>')] + '<end3>' + response[response.find('</start3>')+len('</start3>'):]
-            else:
-                total_unsuccessful += 1
-                continue
-
-        buggy_method1 = response[response.find("<start1>")+len("<start1>"):response.find("<end1>")]
-
-        buggy_method2 = response[response.find("<start2>")+len("<start2>"):response.find("<end2>")]
-
-        buggy_method3 = response[response.find("<start3>")+len("<start3>"):response.find("<end3>")]
-
-        buggy_method1 = remove_stmt_ids(buggy_method1)
-        buggy_method2 = remove_stmt_ids(buggy_method2)
-        buggy_method3 = remove_stmt_ids(buggy_method3)
-
-        if is_equal(buggy_method1, method):
-            total_unchanged += 1
-            continue
-
-        if is_equal(buggy_method2, method):
-            total_unchanged += 1
-            continue
-        
-        if is_equal(buggy_method3, method):
-            total_unchanged += 1
-            continue
-
-        try:
-            javalang.parse.parse('class Dummy {' + buggy_method1 + '}')
-        except:
-            total_non_parseable += 1
-            continue
-        
-        try:
-            javalang.parse.parse('class Dummy {' + buggy_method2 + '}')
-        except:
-            total_non_parseable += 1
-            continue
-
-        try:
-            javalang.parse.parse('class Dummy {' + buggy_method3 + '}')
-        except:
-            total_non_parseable += 1
-            continue
-
-        for i, method_text in enumerate([buggy_method1, buggy_method2, buggy_method3]):
-            with open(f'{index}.java', mode='w', encoding="ISO-8859-1", errors='ignore') as fw:
-                fw.write(method_text)
-
-            os.system(f'tokenizer {index}.java > {index}.txt')
-            tokens = tokenize(f'{index}.txt')
-
-            dct['buggy_method_' + str(i) + '_tokens'] = tokens
-
-            os.system(f'rm {index}.java')
-            os.system(f'rm {index}.txt')
-
-        # save generated methods which are sound and correct
-        dct['buggy_method1'] = buggy_method1
-        dct['buggy_method2'] = buggy_method2
-        dct['buggy_method3'] = buggy_method3
-
-        json_file.write(json.dumps(dct) + '\n')
-        json_file.flush()
-
+    for i, _ in enumerate(pool.imap_unordered(process_instance, lines), 1):
+        sys.stderr.write('\rpercentage of instances completed: {0:%}'.format(i/len(lines)))
 
     print('project_name', project)
-    print('total_time', total_time)
-    print('total_unsuccessful', total_unsuccessful)
-    print('total_unchanged', total_unchanged)
-    print('total_non_parseable', total_non_parseable)
+    print('total_time', stats['total_time'])
+    print('total_unsuccessful', stats['total_unsuccessful'])
+    print('total_unchanged', stats['total_unchanged'])
+    print('total_non_parseable', stats['total_non_parseable'])
 
 
 def parse_args():
