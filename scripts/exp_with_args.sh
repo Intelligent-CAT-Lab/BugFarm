@@ -1,4 +1,4 @@
-WORKDIR="/Users/alibrahimzada/Documents/research/Intelligent-Bug-Generation"
+WORKDIR=`pwd`
 export PYTHONPATH=$WORKDIR
 
 TASK=${1}
@@ -83,10 +83,10 @@ else
 fi
 
 CUDA_VISIBLE_DEVICES=${GPU} \
-  python3 ${RUN_FN}  ${MULTI_TASK_AUG}   \
+  python ${RUN_FN}  ${MULTI_TASK_AUG}   \
   --do_train --do_eval --do_eval_bleu --do_test  \
   --task ${TASK} --sub_task ${SUB_TASK} --model_type ${MODEL_TYPE} --data_num ${DATA_NUM}  \
-  --num_train_epochs ${EPOCH} --warmup_steps ${WARMUP} --learning_rate ${LR}e-5 --patience ${PATIENCE} \
+  --num_train_epochs ${EPOCH} --warmup_steps ${WARMUP} --learning_rate ${LR}e-5 --weight_decay 0.01 --patience ${PATIENCE} \
   --tokenizer_name=${TOKENIZER}  --model_name_or_path=${MODEL_PATH} --data_dir ${WORKDIR}/data  \
   --cache_path ${CACHE_DIR}  --output_dir ${OUTPUT_DIR}  --summary_dir ${SUMMARY_DIR} \
   --save_last_checkpoints --always_save_model --res_dir ${RES_DIR} --res_fn ${RES_FN} \
