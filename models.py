@@ -175,7 +175,7 @@ class DefectModel(nn.Module):
         prob = nn.functional.softmax(logits)
 
         if labels is not None:
-            class_weights=class_weight.compute_class_weight(class_weight='balanced', classes=np.unique(labels.detach().cpu().numpy()), y=labels.detach().cpu().numpy())
+            class_weights=class_weight.compute_class_weight(class_weight='balanced', classes=np.array([0,1]), y=labels.detach().cpu().numpy())
             class_weights=torch.tensor(class_weights,dtype=torch.float,device=labels.device)
             loss_fct = nn.CrossEntropyLoss(weight=class_weights)
             loss = loss_fct(logits, labels)
