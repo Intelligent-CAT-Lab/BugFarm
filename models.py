@@ -172,7 +172,7 @@ class DefectModel(nn.Module):
             vec = self.get_roberta_vec(source_ids)
 
         logits = self.classifier(vec)
-        prob = nn.functional.softmax(logits)
+        prob = nn.functional.softmax(logits, dim=1)
 
         if labels is not None:
             class_weights=class_weight.compute_class_weight(class_weight='balanced', classes=np.array([0,1]), y=labels.detach().cpu().numpy())
