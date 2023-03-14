@@ -69,8 +69,8 @@ def process_project(project):
                 end_line = interval[1]
                 func = '\n'.join(code_lines[start_line-1:end_line])
                 buggy_func = func.replace(row['old_val'], row['pred_token'])
-                json_file.write(json.dumps({"project": project, "bug_id": bug_id, "class_name": row['class_name'], "file_path": file_path, 'method_signature': method_sig, "func": func, "target": 1, "idx": counter}) + '\n')
-                json_file.write(json.dumps({"project": project, "bug_id": bug_id, "class_name": row['class_name'], "file_path": file_path, 'method_signature': method_sig, "func": buggy_func, "target": 0, "idx": counter + 1}) + '\n')
+                json_file.write(json.dumps({"project": project, "bug_id": bug_id, "class_name": row['class_name'], "file_path": file_path, 'method_signature': method_sig, "func": func, "target": 0, "idx": counter}) + '\n')
+                json_file.write(json.dumps({"project": project, "bug_id": bug_id, "class_name": row['class_name'], "file_path": file_path, 'method_signature': method_sig, "func": buggy_func, "target": 1, "idx": counter + 1}) + '\n')
                 json_file.flush()
                 counter += 2
                 total_mutants[file_path + method_sig] += 1
