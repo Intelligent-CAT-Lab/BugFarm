@@ -59,9 +59,9 @@ def get_args_by_task_model(task, sub_task, model_tag):
         # Read 21854 examples, avg src len: 187, avg trg len: 1, max src len: 12195, max trg len: 1
         # [TOKENIZE] avg src len: 597, avg trg len: 1, max src len: 41447, max trg len: 1
         src_len = 512
-        trg_len = 3
+        trg_len = 1
         epoch = 10
-        patience = 2
+        patience = 10
     elif task == 'clone':
         # Read 901028 examples, avg src len: 120, avg trg len: 123, max src len: 5270, max trg len: 5270
         # [TOKENIZE] avg src len: 318, avg trg len: 323, max src len: 15111, max trg len: 15111
