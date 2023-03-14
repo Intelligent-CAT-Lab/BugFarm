@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
+from sklearn.utils import class_weight
 from transformers import (RobertaConfig, RobertaModel, RobertaTokenizer,
                           BartConfig, BartForConditionalGeneration, BartTokenizer,
                           T5Config, T5ForConditionalGeneration, T5Tokenizer)
@@ -174,7 +175,9 @@ class DefectModel(nn.Module):
         prob = nn.functional.softmax(logits)
 
         if labels is not None:
-            loss_fct = nn.CrossEntropyLoss()
+            class_weights=class_weight.compute_class_weight(class_weight='balanced', classes=np.unique(labels.detach().cpu().numpy()), y=labels.detach().cpu().numpy())
+            class_weights=torch.tensor(class_weights,dtype=torch.float,device=labels.device)
+            loss_fct = nn.CrossEntropyLoss(weight=class_weights)
             loss = loss_fct(logits, labels)
             return loss, prob
         else:
