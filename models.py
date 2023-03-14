@@ -127,7 +127,11 @@ class DefectModel(nn.Module):
         self.encoder = encoder
         self.config = config
         self.tokenizer = tokenizer
-        self.classifier = nn.Linear(config.hidden_size, 2)
+        self.dropout = nn.Dropout(0.25)
+        self.clf_0 = nn.Linear(config.hidden_size, config.hidden_size)
+        self.clf_1 = nn.Linear(config.hidden_size, config.hidden_size)
+        self.clf_2 = nn.Linear(config.hidden_size, config.hidden_size)
+        self.clf_3 = nn.Linear(config.hidden_size, 2)
         self.args = args
 
     def get_t5_vec(self, source_ids):
@@ -171,7 +175,18 @@ class DefectModel(nn.Module):
         elif self.args.model_type == 'roberta':
             vec = self.get_roberta_vec(source_ids)
 
-        logits = self.classifier(vec)
+        vec = self.dropout(vec)
+        vec = self.clf_0(vec)
+        vec = nn.functional.relu(vec)
+        vec = self.dropout(vec)
+        vec = self.clf_1(vec)
+        vec = nn.functional.relu(vec)
+        vec = self.dropout(vec)
+        vec = self.clf_2(vec)
+        vec = nn.functional.relu(vec)
+        vec = self.dropout(vec)
+        logits = self.clf_3(vec)
+        
         prob = nn.functional.softmax(logits, dim=1)
 
         if labels is not None:
