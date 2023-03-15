@@ -3,6 +3,7 @@ import argparse
 import ast
 import subprocess
 import glob
+import os
 
 
 def main(args):
@@ -30,6 +31,47 @@ def main(args):
                     instances.append((func, 1))
                 json_file.flush()
         
+        distinct_instances = set(instances)
+        for instance in distinct_instances:
+            json_file.write(json.dumps({"func": f"{instance[0]}", "target": instance[1], "idx": counter}) + '\n')
+            counter += 1
+
+    elif args.type == 'bugswarm':
+
+        path_ = 'data/defect/bugswarm/'
+        json_file = open(path_ + 'big_test.jsonl', 'wt')
+
+        counter = 0
+        instances = []
+        
+        dirs = os.listdir(path_)
+        for dir_ in dirs:
+            if not os.path.isdir(path_ + dir_):
+                continue
+            bug_ids = os.listdir(path_ + dir_)
+            for bug_id in bug_ids:
+
+                if not os.path.isdir(path_ + dir_ + '/' + bug_id + '/' + 'fixed') or not os.path.isdir(path_ + dir_ + '/' + bug_id + '/' + 'buggy'):
+                    continue
+
+                fixed_files = os.listdir(path_ + dir_ + '/' + bug_id + '/' + 'fixed')
+                buggy_files = os.listdir(path_ + dir_ + '/' + bug_id + '/' + 'buggy')
+
+                for fixed_file in fixed_files:
+                    with open(path_ + dir_ + '/' + bug_id + '/' + 'fixed' + '/' + fixed_file, 'r') as f:
+                        func = f.read()
+                        func = ' '.join(func.split())
+                        instances.append((func, 0))
+                        json_file.flush()
+                
+                for buggy_file in buggy_files:
+                    with open(path_ + dir_ + '/' + bug_id + '/' + 'buggy' + '/' + buggy_file, 'r') as f:
+                        func = f.read()
+                        func = ' '.join(func.split())
+                        instances.append((func, 1))
+                        json_file.flush()
+
+
         distinct_instances = set(instances)
         for instance in distinct_instances:
             json_file.write(json.dumps({"func": f"{instance[0]}", "target": instance[1], "idx": counter}) + '\n')
