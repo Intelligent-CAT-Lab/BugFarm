@@ -76,7 +76,7 @@ if [[ ${TASK} == 'multi_task' ]]; then
   MULTI_TASK_AUG='--max_steps '${16}' --save_steps '${17}' --log_steps '${18}
 elif [[ ${TASK} == 'clone' ]]; then
   RUN_FN=${WORKDIR}/run_clone.py
-elif [[ ${TASK} == 'defect' ]] && [[ ${MODEL_TYPE} == 'roberta' ||  ${MODEL_TYPE} == 'bart' ]]; then
+elif [[ ${TASK} == 'defect' ]] && [[ ${MODEL_TYPE} == 'roberta' ||  ${MODEL_TYPE} == 'bart' || ${MODEL_TYPE} == 'codet5' ]]; then
   RUN_FN=${WORKDIR}/run_defect.py
 else
   RUN_FN=${WORKDIR}/run_gen.py
