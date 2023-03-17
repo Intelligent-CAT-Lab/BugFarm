@@ -81,7 +81,7 @@ def main(args):
 
         projects = ["commons-cli", "commons-codec", "commons-collections", "commons-compress", "commons-csv", "commons-jxpath", "commons-lang", "commons-math", "gson", "jackson-core", "jackson-databind", "jackson-dataformat-xml", "jfreechart", "joda-time", "jsoup"]
 
-        json_file = open(f'data/defect/ours-codebert/{args.model}.jsonl', 'wt')
+        json_file = open(f'data/defect/bugfarm-{args.model}/{args.model}.jsonl', 'wt')
 
         counter = 0
         for project in projects:

@@ -73,6 +73,7 @@ def process_instance(line):
 
     dct = ast.literal_eval(line)
 
+    dct['selected_bugs'] = []
     for bug_num in range(3):
 
         method = dct[f'buggy_method{bug_num+1}']
@@ -80,7 +81,6 @@ def process_instance(line):
         if method.strip() == '':
             continue
 
-        dct['selected_bugs'] = []
         nl_tokens = tokenizer.tokenize("")
         statements = method.split('\n')
         statements = [x.strip() for x in statements if x.strip() != '']
