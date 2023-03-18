@@ -7,7 +7,7 @@ import json
 import difflib
 import sys
 import multiprocessing
-from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer, PLBartModel, PLBartTokenizer
+from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer, AutoModelForSeq2SeqLM
 from utils import visual_atn_matrix, adjust_tokens
 
 
@@ -88,9 +88,7 @@ def process_instance(line):
 
         code_tokens = tokenizer.tokenize(code)
 
-        window_size = 1024 if args.model_type == 'plbart' else tokenizer.model_max_length
-
-        if len(code_tokens) > window_size - 3:
+        if len(code_tokens) > tokenizer.model_max_length - 3:
             continue
 
         tokens = [tokenizer.cls_token]+nl_tokens+[tokenizer.sep_token]+code_tokens+[tokenizer.eos_token]
@@ -100,9 +98,12 @@ def process_instance(line):
         decoded_tokens = [tokenizer.decode(id_) for id_ in tokens_ids]
 
         # Extract the attentions
-        key = 'encoder_attentions' if args.model_type == 'plbart' else 'attentions'
+        key = 'encoder_attentions' if args.model_type == 'NatGen' else 'attentions'
 
-        attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True)[key]
+        if args.model_type == 'NatGen':
+            attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True, decoder_input_ids=torch.tensor(tokens_ids, device=device)[None,:])[key]
+        else:
+            attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True)['key']
 
         num_layers = len(attentions)
 
@@ -154,9 +155,9 @@ def main(args):
     elif args.model_type == 'codebert':
         tokenizer = AutoTokenizer.from_pretrained(f"microsoft/{args.model_type}-{args.model_size}")
         model = AutoModel.from_pretrained(f"microsoft/{args.model_type}-{args.model_size}")
-    elif args.model_type == 'plbart':
-        tokenizer = PLBartTokenizer.from_pretrained(f"uclanlp/{args.model_type}-{args.model_size}")
-        model = PLBartModel.from_pretrained(f"uclanlp/{args.model_type}-{args.model_size}")
+    elif args.model_type == 'NatGen':
+        tokenizer = AutoTokenizer.from_pretrained(f'saikatc/{args.model_type}')
+        model = AutoModelForSeq2SeqLM.from_pretrained(f'saikatc/{args.model_type}')
 
     model.to(device)
 
