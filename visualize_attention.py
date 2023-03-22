@@ -73,10 +73,10 @@ def process_instance(input):
     decoded_token_types = dct['tokens']
     decoded_tokens = [x for x,y in decoded_token_types]
 
-    plt.figure(figsize=(7,7))
-    ax = visual_matrix(model_attentions, decoded_tokens)
-    plt.savefig('visualizations/{}_{}_{}_attention_analysis/img/{}_mat.png'.format(args.model_type, args.model_size, args.project_name, dct['index']), bbox_inches='tight')
-    plt.close()
+    # plt.figure(figsize=(7,7))
+    # ax = visual_matrix(model_attentions, decoded_tokens)
+    # plt.savefig('visualizations/{}_{}_{}_attention_analysis/img/{}_mat.pdf'.format(args.model_type, args.model_size, args.project_name, dct['index']), bbox_inches='tight')
+    # plt.close()
 
     col_averaged = np.average(model_attentions, axis=0)
 
@@ -133,57 +133,57 @@ def process_instance(input):
 
     least_attended_statements = res[:math.ceil((k/100) * len(res))]
 
-    labels = []
-    unattended_tokens = []
-    all_tokens = []
-    scores = []
-    for k in sorted(record):
-        labels.append(record[k][0])
-        unattended_tokens.append(record[k][1])
-        all_tokens.append(record[k][2])
-        scores.append(record[k][4])
+    # labels = []
+    # unattended_tokens = []
+    # all_tokens = []
+    # scores = []
+    # for k in sorted(record):
+    #     labels.append(record[k][0])
+    #     unattended_tokens.append(record[k][1])
+    #     all_tokens.append(record[k][2])
+    #     scores.append(record[k][4])
 
-    c = 0
-    token_str = f'{c}- '
-    is_set = False
-    for i in range(len(decoded_tokens)):
-        if c in list(zip(*least_attended_statements))[0] and not is_set:
-            token_str += '<a style="color:blue">[least attended statement] </a>'
-            is_set = True
+    # c = 0
+    # token_str = f'{c}- '
+    # is_set = False
+    # for i in range(len(decoded_tokens)):
+    #     if c in list(zip(*least_attended_statements))[0] and not is_set:
+    #         token_str += '<a style="color:blue">[least attended statement] </a>'
+    #         is_set = True
 
-        if decoded_tokens[i] == '\n':
-            c += 1
-            token_str += f' <br>{c}- '
-            is_set = False
-            continue
+    #     if decoded_tokens[i] == '\n':
+    #         c += 1
+    #         token_str += f' <br>{c}- '
+    #         is_set = False
+    #         continue
 
-        elif decoded_tokens[i] in list(zip(*list(zip(*least_attended_tokens))[0]))[0]:
-            token_str += f'<a style="color:red">{decoded_tokens[i]} </a>'
+    #     elif decoded_tokens[i] in list(zip(*list(zip(*least_attended_tokens))[0]))[0]:
+    #         token_str += f'<a style="color:red">{decoded_tokens[i]} </a>'
 
-        else:
-            token_str += f'{decoded_tokens[i]} '
+    #     else:
+    #         token_str += f'{decoded_tokens[i]} '
 
-    fig, ax = plt.subplots()
-    ax2 = plt.twiny()
-    y_pos = np.arange(len(labels))
+    # fig, ax = plt.subplots()
+    # ax2 = plt.twiny()
+    # y_pos = np.arange(len(labels))
 
-    ax.barh(y_pos, unattended_tokens, align='edge', color='blue', height=0.4, label='unattended tokens')
-    ax.barh(y_pos, all_tokens, align='edge', color='red', height=-0.4, label='all tokens')
-    ax2.barh(y_pos, scores, align='center', height=0.27, color='green', label='ratio')
-    ax.set_yticks(y_pos)
-    ax.invert_yaxis()
-    ax.set_xlabel('# tokens')
-    ax2.set_xlabel('ratio (unattended / normalized_length)')
-    ax2.grid(False)
-    ax2.legend(loc=3)
-    ax.legend(loc=4)
-    plt.savefig('visualizations/{}_{}_{}_attention_analysis/img/{}.png'.format(args.model_type, args.model_size, args.project_name, dct['index']), bbox_inches='tight')
-    plt.close()
+    # ax.barh(y_pos, unattended_tokens, align='edge', color='blue', height=0.4, label='unattended tokens')
+    # ax.barh(y_pos, all_tokens, align='edge', color='red', height=-0.4, label='all tokens')
+    # ax2.barh(y_pos, scores, align='center', height=0.27, color='green', label='ratio')
+    # ax.set_yticks(y_pos)
+    # ax.invert_yaxis()
+    # ax.set_xlabel('# tokens')
+    # ax2.set_xlabel('ratio (unattended / normalized_length)')
+    # ax2.grid(False)
+    # ax2.legend(loc=3)
+    # ax.legend(loc=4)
+    # plt.savefig('visualizations/{}_{}_{}_attention_analysis/img/{}.png'.format(args.model_type, args.model_size, args.project_name, dct['index']), bbox_inches='tight')
+    # plt.close()
 
-    img_src = 'img/{}.png'.format(dct['index'])
-    atn_mat_img_src = 'img/{}_mat.png'.format(dct['index'])
-    index = dct['index']
-    table_rows.write(f'\n\t\t\t\t<tr>\n\t\t\t\t\t<td>{index}</td>\n\t\t\t\t\t<td>{token_str}</td>\n\t\t\t\t\t<td><img src={atn_mat_img_src}></td>\n\t\t\t\t\t<td><img src={img_src}></td>\n\t\t\t\t</tr>')
+    # img_src = 'img/{}.png'.format(dct['index'])
+    # atn_mat_img_src = 'img/{}_mat.png'.format(dct['index'])
+    # index = dct['index']
+    # table_rows.write(f'\n\t\t\t\t<tr>\n\t\t\t\t\t<td>{index}</td>\n\t\t\t\t\t<td>{token_str}</td>\n\t\t\t\t\t<td><img src={atn_mat_img_src}></td>\n\t\t\t\t\t<td><img src={img_src}></td>\n\t\t\t\t</tr>')
 
     dct['least_attended_tokens'] = [x[0][0] for x in least_attended_tokens]
     dct['least_attended_statements'] = [x[0] for x in least_attended_statements]
