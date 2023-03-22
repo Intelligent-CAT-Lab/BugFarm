@@ -4,6 +4,8 @@ import json
 import argparse
 import os
 import sys
+import time
+import logging
 import multiprocessing
 from utils import tokenize
 
@@ -154,6 +156,12 @@ def process_instance(line):
 
 def main(args):
 
+    start = time.time()
+
+    os.makedirs(f'logs', exist_ok=True)
+    logging.basicConfig(filename=f"logs/{args.log_file}", level=logging.INFO, format='%(asctime)s %(levelname)s %(module)s - %(funcName)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.info(f'parsing chatgpt - {args.project_name} using {args.model_type}-{args.model_size}')
+
     global stats
     global json_file
 
@@ -173,7 +181,7 @@ def main(args):
 
     stats = manager.dict({'total_time': 0, 'total_unsuccessful': 0, 'total_unchanged': 0, 'total_non_parseable': 0})
 
-    pool = multiprocessing.Pool(8)
+    pool = multiprocessing.Pool(args.num_workers)
 
     for i, _ in enumerate(pool.imap_unordered(process_instance, lines), 1):
         sys.stderr.write('\rpercentage of instances completed: {0:%}'.format(i/len(lines)))
@@ -184,12 +192,16 @@ def main(args):
     print('total_unchanged', stats['total_unchanged'])
     print('total_non_parseable', stats['total_non_parseable'])
 
+    logging.info(f'total time in secs for parsing chatgpt {args.project_name} using {args.model_type}-{args.model_size}: ' + str(round(time.time() - start, 2)))
+
 
 def parse_args():
     parser = argparse.ArgumentParser("extract chatgpt responses")
     parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to process and extract methods')
     parser.add_argument('--model_type', type=str, default='codebert', help='LLM to use in this experiment')
     parser.add_argument('--model_size', type=str, default='base', help='model size to use in this experiment')
+    parser.add_argument('--log_file', type=str, default='parse_chatgpt.log', help='log file to save the output of this script')
+    parser.add_argument('--num_workers', type=int, default=8, help='number of workers to use for multiprocessing')
     return parser.parse_args()
 
 if __name__ == '__main__':
