@@ -20,7 +20,7 @@ while getopts ":h" option; do
     esac
 done
 
-if [[ $# < 5 ]]; then
+if [[ $# < 4 ]]; then
   prompt;
 fi
 
