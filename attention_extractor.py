@@ -74,7 +74,7 @@ def main(args):
         if args.model_type == 'NatGen':
             attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True, decoder_input_ids=torch.tensor(tokens_ids, device=device)[None,:])[key]
         else:
-            attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True)['key']
+            attentions = model(torch.tensor(tokens_ids, device=device)[None,:], output_attentions=True)[key]
 
         num_layers = len(attentions)
 
