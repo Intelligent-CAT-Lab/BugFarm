@@ -7,6 +7,7 @@ import json
 import difflib
 import os
 import time
+import tqdm
 import logging
 from transformers import AutoTokenizer, AutoModel, T5EncoderModel, RobertaTokenizer, AutoModelForSeq2SeqLM
 from utils import visual_atn_matrix, adjust_tokens
@@ -108,7 +109,7 @@ def main(args):
 
     stats = {'total_selected_bugs': 0}
 
-    for line in lines:
+    for line in tqdm.tqdm(lines):
         dct = ast.literal_eval(line)
 
         dct['selected_bugs'] = []
