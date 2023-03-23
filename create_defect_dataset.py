@@ -93,7 +93,7 @@ def main(args):
                     func = dct['method']
                     func = ' '.join(func.split())
                     dct['method'] = func
-                    json_file.write(json.dumps({"func": f"{dct['method']}", "target": 0, "idx": counter}) + '\n')
+                    json_file.write(json.dumps({"func": f"{dct['method']}", "target": 0, "idx": counter, "project": dct['project'], "file_path": dct['file_path']}) + '\n')
                     counter += 1
 
                     if 'selected_bugs' not in dct:
@@ -103,7 +103,7 @@ def main(args):
                         func = dct[f'buggy_method{bug_id}']
                         func = ' '.join(func.split())
                         dct[f'buggy_method{bug_id}'] = func
-                        json_file.write(json.dumps({"func": f"{dct[f'buggy_method{bug_id}']}", "target": 1, "idx": counter}) + '\n')
+                        json_file.write(json.dumps({"func": f"{dct[f'buggy_method{bug_id}']}", "target": 1, "idx": counter, "project": dct['project'], "file_path": dct['file_path']}) + '\n')
                         counter += 1
 
                     json_file.flush()
