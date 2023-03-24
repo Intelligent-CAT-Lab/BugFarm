@@ -91,8 +91,8 @@ def main(args):
                 for line in lines:
                     dct = ast.literal_eval(line)
                     func = dct['method']
-                    func = ' '.join(func.split())
                     dct['method'] = func
+                    fixed_idx = counter
                     json_file.write(json.dumps({"func": f"{dct['method']}", "target": 0, "idx": counter, "project": dct['project'], "file_path": dct['file_path']}) + '\n')
                     counter += 1
 
@@ -101,9 +101,8 @@ def main(args):
 
                     for bug_id in dct['selected_bugs']:
                         func = dct[f'buggy_method{bug_id}']
-                        func = ' '.join(func.split())
                         dct[f'buggy_method{bug_id}'] = func
-                        json_file.write(json.dumps({"func": f"{dct[f'buggy_method{bug_id}']}", "target": 1, "idx": counter, "project": dct['project'], "file_path": dct['file_path']}) + '\n')
+                        json_file.write(json.dumps({"func": f"{dct[f'buggy_method{bug_id}']}", "target": 1, "idx": counter, "project": dct['project'], "file_path": dct['file_path'], "fixed_method_idx": fixed_idx}) + '\n')
                         counter += 1
 
                     json_file.flush()
