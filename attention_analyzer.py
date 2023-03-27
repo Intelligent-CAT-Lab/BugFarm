@@ -24,15 +24,15 @@ def main(args):
 
     start = time.time()
 
-    global table_rows
-    global project_least_attended_tokens
+    # global table_rows
+    # global project_least_attended_tokens
     global json_file
 
     os.makedirs(f'logs', exist_ok=True)
     logging.basicConfig(filename=f"logs/{args.log_file}", level=logging.INFO, format='%(asctime)s %(levelname)s %(module)s - %(funcName)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     logging.info(f'visualizing {args.project_name} using {args.model_type}-{args.model_size}')
 
-    os.system(f'mkdir -p visualizations/{args.model_type}_{args.model_size}_{args.project_name}_attention_analysis/img')
+    # os.system(f'mkdir -p visualizations/{args.model_type}_{args.model_size}_{args.project_name}_attention_analysis/img')
 
     lines = []
     with open(f'data/{args.project_name}/unique_methods_{args.model_type}-{args.model_size}_attnw.jsonl') as fr:
@@ -40,29 +40,26 @@ def main(args):
 
     json_file = open(f"data/{args.project_name}/unique_methods_{args.model_type}-{args.model_size}_las_lat.jsonl", "wt")
 
-    table_rows = open('table_rows.txt', 'w')
-    project_least_attended_tokens = open('least_attended_tokens.txt', 'w')
+    # table_rows = open('table_rows.txt', 'w')
+    # project_least_attended_tokens = open('least_attended_tokens.txt', 'w')
     pool = multiprocessing.Pool(args.num_workers)
     for i, _ in enumerate(pool.imap_unordered(process_instance, lines), 1):
         sys.stderr.write('\rpercentage of methods visualized: {0:%}'.format(i/len(lines)))
 
-    with open('table_rows.txt') as fr:
-        content = fr.read()
-
-    table = f'<html>\n\t<head>\n\t\t<style type="text/css" media="screen">\n\t\t\ttable, th, td {{border: 1px solid black;}}\n\t\t\ttd, th {{word-wrap: break-word}}\n\t\t</style>\n\t</head>\n\t<body>\n\t\t<table>\n\t\t\t<tr>\n\t\t\t\t<th>Index</th>\n\t\t\t\t<th>Statements <br> (red = among least 10% of attended tokens) <br> (blue = among least 10% of attended statements) </th>\n\t\t\t\t<th>Attention Matrix (averaged over all layers and heads)</th>\n\t\t\t\t<th>Statement (unattended / all tokens)</th>\n\t\t\t</tr>{content}\n\t\t</table>\n\t</body>\n</html>'
-    with open(f'visualizations/{args.model_type}_{args.model_size}_{args.project_name}_attention_analysis/{args.project_name}_{args.model_type}.html', 'w') as fw:
-        fw.write(table)
+    # table = f'<html>\n\t<head>\n\t\t<style type="text/css" media="screen">\n\t\t\ttable, th, td {{border: 1px solid black;}}\n\t\t\ttd, th {{word-wrap: break-word}}\n\t\t</style>\n\t</head>\n\t<body>\n\t\t<table>\n\t\t\t<tr>\n\t\t\t\t<th>Index</th>\n\t\t\t\t<th>Statements <br> (red = among least 10% of attended tokens) <br> (blue = among least 10% of attended statements) </th>\n\t\t\t\t<th>Attention Matrix (averaged over all layers and heads)</th>\n\t\t\t\t<th>Statement (unattended / all tokens)</th>\n\t\t\t</tr>{content}\n\t\t</table>\n\t</body>\n</html>'
+    # with open(f'visualizations/{args.model_type}_{args.model_size}_{args.project_name}_attention_analysis/{args.project_name}_{args.model_type}.html', 'w') as fw:
+    #     fw.write(table)
     
-    with open('least_attended_tokens.txt') as fr:
-        project_least_attended_tokens = fr.readlines()
+    # with open('least_attended_tokens.txt') as fr:
+    #     project_least_attended_tokens = fr.readlines()
     
-    res = [ast.literal_eval(x) for x in project_least_attended_tokens]
-    cat_freq = analyze_least_attended_tokens(res)
-    with open(f'visualizations/{args.model_type}_{args.model_size}_{args.project_name}_attention_analysis/freqs.json', 'w') as fp:
-        json.dump(cat_freq, fp)
+    # res = [ast.literal_eval(x) for x in project_least_attended_tokens]
+    # cat_freq = analyze_least_attended_tokens(res)
+    # with open(f'visualizations/{args.model_type}_{args.model_size}_{args.project_name}_attention_analysis/freqs.json', 'w') as fp:
+    #     json.dump(cat_freq, fp)
 
-    os.remove('table_rows.txt')
-    os.remove('least_attended_tokens.txt')
+    # os.remove('table_rows.txt')
+    # os.remove('least_attended_tokens.txt')
 
     logging.info(f'total time in secs for visualizing {args.project_name} using {args.model_type}-{args.model_size}: ' + str(round(time.time() - start, 2)))
 
@@ -85,9 +82,9 @@ def process_instance(input):
     token_attn.sort(key = lambda i:i[1])
 
     least_attended_tokens = token_attn[:math.ceil((k/100) * len(token_attn))]
-    for item in least_attended_tokens:
-        project_least_attended_tokens.write(str(item) + '\n')
-        project_least_attended_tokens.flush()
+    # for item in least_attended_tokens:
+    #     project_least_attended_tokens.write(str(item) + '\n')
+    #     project_least_attended_tokens.flush()
 
     counter = 0
     record = {}
