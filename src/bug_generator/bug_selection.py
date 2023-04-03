@@ -181,14 +181,13 @@ def main(args):
 
     total_selected_bugs = stats['total_selected_bugs']
 
-    print(f'Total selected bugs for {project}: {total_selected_bugs}')
-
+    logging.info(f'total selected bugs: {total_selected_bugs}')
     logging.info(f'total time in secs for selecting bugs of {args.project_name} using {args.model_type}-{args.model_size}: ' + str(round(time.time() - start, 2)))
 
 
 def parse_args():
-    parser = argparse.ArgumentParser("extract chatgpt responses")
-    parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to process chatgpt responses')
+    parser = argparse.ArgumentParser("bug selection")
+    parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to select bugs for')
     parser.add_argument('--model_type', type=str, default='codebert', help='LLM to use in this experiment')
     parser.add_argument('--model_size', type=str, default='base', help='model size to use in this experiment')
     parser.add_argument('--log_file', type=str, default='bug_selection.log', help='log file to store the logs')

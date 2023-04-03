@@ -50,3 +50,8 @@ The fourth step is to use the LASs/LATs, craft custom prompts, and query an LLM 
 The fifth step is to parse the LLM response. Execute the following to parse ChatGPT responses from codebert-base using 8 CPU cores, and save each buggy method inside `data/$project/unique_methods_codebert-base_NBugs.jsonl`:
 
 `bash scripts/parse_response.sh parse_chatgpt.log codebert base 8`
+
+## Bug Selection
+The sixth step is to perform bug selection (Algorithm 2 in paper). Execute the following to select codebert-base bugs using 8 CPU cores and save it inside `data/$project/unique_methods_codebert-base_selected_bugs.jsonl`:
+
+`bash scripts/bug_selection.sh bug_selection.log codebert base 8`
