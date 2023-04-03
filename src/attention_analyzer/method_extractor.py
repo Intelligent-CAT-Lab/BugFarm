@@ -95,7 +95,7 @@ def main(args):
 
     os.makedirs(f'data/{args.project_name}', exist_ok=True)
 
-    json_file = open(f"data/{args.project_name}/temp_unique_methods.jsonl", "wt")
+    json_file = open(f"data/{args.project_name}/unique_methods.jsonl", "wt")
     pool = multiprocessing.Pool(args.num_workers)
 
     for i, _ in enumerate(pool.imap_unordered(process_file, source_paths), 1):
