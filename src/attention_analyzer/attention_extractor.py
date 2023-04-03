@@ -7,6 +7,7 @@ import json
 import ast
 import argparse
 import time
+import tqdm
 import os
 import logging
 
@@ -45,7 +46,7 @@ def main(args):
     
     json_file = open(f"data/{args.project_name}/unique_methods_{args.model_type}-{args.model_size}_attnw.jsonl", "wt")
 
-    for l in lines:
+    for l in tqdm.tqdm(lines):
 
         dct = ast.literal_eval(l)
 
