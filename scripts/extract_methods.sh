@@ -1,5 +1,7 @@
 # !/usr/bin/env bash
 
+WORKDIR=`pwd`
+export PYTHONPATH=$WORKDIR
 export PYTHONIOENCODING=utf-8;
 
 function prompt() {
@@ -24,9 +26,9 @@ fi
 LOG_FILE_NAME=$1;
 NUM_WORKERS=$2;
 
-projects=("commons-cli" "commons-codec" "commons-collections" "commons-compress" "commons-csv" "commons-jxpath" "commons-lang" "commons-math" "gson" "jackson-core" "jackson-databind" "jackson-dataformat-xml" "jfreechart" "joda-time" "jsoup")
+projects=("commons-cli" "commons-codec" "commons-collections" "commons-compress" "commons-csv" "commons-jxpath" "commons-lang" "commons-math" "gson" "jackson-core" "jackson-databind" "jackson-dataformat-xml" "jfreechart" "joda-time" "jsoup");
 
 for project in "${projects[@]}"
 do
-    python3 method_extractor.py --project_name $project --log_file $LOG_FILE_NAME --num_workers $NUM_WORKERS;
+    python3 src/attention_analyzer/method_extractor.py --project_name $project --log_file $LOG_FILE_NAME --num_workers $NUM_WORKERS;
 done

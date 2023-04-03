@@ -1,10 +1,12 @@
-# Intelligent-Bug-Generation
-In this project, we will find model vulnerabilities and change them to generate hard-to-find bugs.
+# BUGFARM
+In this project, we interpret code-language models to produce bug-inducing transformations to inject a bug without the model noticing it.
 
 ## Dependencies
 Please execute the following to install dependencies and download the projects:
 
 `sudo bash setup.sh`
+
+Moreover, you need to setup the [tokenizer tool](https://github.com/devreplay/source-code-tokenizer).
 
 ## Method Extraction
 The first step is to extract the methods from the listed projects in `setup.sh`. Execute the following to extract the methods using 8 CPU cores:
