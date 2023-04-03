@@ -24,13 +24,18 @@ def parse_java_func_intervals(content: str) -> Set[Tuple[int, int]]:
 
 project = 'Closure'
 
-path_ = f'/Users/alibrahimzada/defects4j/framework/projects/{project}/patches'
+# use which defects4j and store the path here
+os.system('which defects4j > defects4j_path.txt')
+with open('defects4j_path.txt', 'r') as f:
+    defects4j_path = f.read().strip()
+    os.system(f'rm defects4j_path.txt')
+
+path_ = f'{defects4j_path}/framework/projects/{project}/patches'
 
 os.makedirs(f'data/defect/{project}/fixed', exist_ok=True)
 os.makedirs(f'data/defect/{project}/buggy', exist_ok=True)
 
 for patch in os.listdir(path_):
-# for patch in ['38.src.patch']:
 
     if not patch.endswith('.src.patch'):
         continue

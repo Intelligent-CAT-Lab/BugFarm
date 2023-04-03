@@ -26,9 +26,9 @@ def main(args):
                     func = ' '.join(func.split())
                 
                 if 'fixed' in source_path:
-                    instances.append((func, 0))
-                else:
                     instances.append((func, 1))
+                else:
+                    instances.append((func, 0))
                 json_file.flush()
         
         distinct_instances = set(instances)
@@ -61,14 +61,14 @@ def main(args):
                     with open(path_ + dir_ + '/' + bug_id + '/' + 'fixed' + '/' + fixed_file, 'r') as f:
                         func = f.read()
                         func = ' '.join(func.split())
-                        instances.append((func, 0))
+                        instances.append((func, 1))
                         json_file.flush()
                 
                 for buggy_file in buggy_files:
                     with open(path_ + dir_ + '/' + bug_id + '/' + 'buggy' + '/' + buggy_file, 'r') as f:
                         func = f.read()
                         func = ' '.join(func.split())
-                        instances.append((func, 1))
+                        instances.append((func, 0))
                         json_file.flush()
 
 
@@ -93,7 +93,7 @@ def main(args):
                     func = dct['method']
                     dct['method'] = func
                     fixed_idx = counter
-                    json_file.write(json.dumps({"func": f"{dct['method']}", "target": 0, "idx": counter, "project": dct['project'], "file_path": dct['file_path']}) + '\n')
+                    json_file.write(json.dumps({"func": f"{dct['method']}", "target": 1, "idx": counter, "project": dct['project'], "file_path": dct['file_path']}) + '\n')
                     counter += 1
 
                     if 'selected_bugs' not in dct:
@@ -102,7 +102,7 @@ def main(args):
                     for bug_id in dct['selected_bugs']:
                         func = dct[f'buggy_method{bug_id}']
                         dct[f'buggy_method{bug_id}'] = func
-                        json_file.write(json.dumps({"func": f"{dct[f'buggy_method{bug_id}']}", "target": 1, "idx": counter, "project": dct['project'], "file_path": dct['file_path'], "fixed_method_idx": fixed_idx}) + '\n')
+                        json_file.write(json.dumps({"func": f"{dct[f'buggy_method{bug_id}']}", "target": 0, "idx": counter, "project": dct['project'], "file_path": dct['file_path'], "fixed_method_idx": fixed_idx}) + '\n')
                         counter += 1
 
                     json_file.flush()
