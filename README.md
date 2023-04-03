@@ -2,7 +2,7 @@
 In this project, we interpret code-language models to produce bug-inducing transformations to inject a bug without the model noticing it.
 
 ## Dependencies
-Please execute the following to install dependencies and download the projects:
+All experiments require Python 3.7 (some experiments may need a higher version, i.e., when using OpenAI API) and a Linux/Mac OS. Please execute the following to install dependencies and download the projects:
 
 `sudo bash setup.sh`
 
@@ -40,3 +40,6 @@ The third step is to analyze attention weights and determine Least Attended Toke
 `bash scripts/analyze_attentions.sh attention_analyzer.log codebert base 10 8`
 
 This will create a log file which contains some stats about methods in `logs/attention_analyzer.log`. Moreover, it will store all methods, attention weights, and LAS/LAT inside `data/$project/unique_methods_codebert-base_las_lat.jsonl`.
+
+## Prompting LLM
+The fourth step is to use the LASs/LATs, craft custom prompts, and query an LLM (i.e., ChatGPT). Execute the following to send custom prompts to ChatGPT and store its responses inside `data/$project/unique_methods_codebert-base_chatgpt.jsonl`. If a connection error happens because of OpenAI API, you may execute the same command and the requests will resume without deleting existing responses. You may want to change `python3` to point to a higher version (i.e., 3.9) because OpenAI API is not compatible with older versions of python.

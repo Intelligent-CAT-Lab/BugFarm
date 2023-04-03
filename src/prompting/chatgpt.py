@@ -71,10 +71,10 @@ def main(args):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser("extract chatgpt responses")
-    parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to process and extract methods')
-    parser.add_argument('--model_type', type=str, default='codebert', help='LLM to use in this experiment')
-    parser.add_argument('--model_size', type=str, default='base', help='model size to use in this experiment')
+    parser = argparse.ArgumentParser("prompting chatgpt")
+    parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to prompt its methods')
+    parser.add_argument('--model_type', type=str, default='codebert', help='code-language model to use in this experiment')
+    parser.add_argument('--model_size', type=str, default='base', help='code-language model size to use in this experiment')
     return parser.parse_args()
 
 if __name__ == '__main__':
