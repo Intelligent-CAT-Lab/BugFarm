@@ -77,13 +77,13 @@ if [[ ${TASK} == 'multi_task' ]]; then
 elif [[ ${TASK} == 'clone' ]]; then
   RUN_FN=${WORKDIR}/run_clone.py
 elif [[ ${TASK} == 'defect' ]] && [[ ${MODEL_TYPE} == 'roberta' ||  ${MODEL_TYPE} == 'bart' || ${MODEL_TYPE} == 'codet5' ]]; then
-  RUN_FN=${WORKDIR}/run_defect.py
+  RUN_FN=${WORKDIR}/src/finetuning/run_defect.py
 else
   RUN_FN=${WORKDIR}/run_gen.py
 fi
 
 CUDA_VISIBLE_DEVICES=${GPU} \
-  python ${RUN_FN}  ${MULTI_TASK_AUG}   \
+  python3 ${RUN_FN}  ${MULTI_TASK_AUG}   \
   --do_train --do_eval --do_eval_bleu --do_test  \
   --task ${TASK} --sub_task ${SUB_TASK} --model_type ${MODEL_TYPE} --data_num ${DATA_NUM}  \
   --num_train_epochs ${EPOCH} --warmup_steps ${WARMUP} --learning_rate ${LR}e-5 --weight_decay 0.01 --patience ${PATIENCE} \
