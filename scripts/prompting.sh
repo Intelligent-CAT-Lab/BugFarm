@@ -6,7 +6,7 @@ export PYTHONIOENCODING=utf-8;
 
 function prompt() {
     echo;
-    echo "Syntax: bash scripts/prompt.sh MODEL_NAME MODEL_SIZE";
+    echo "Syntax: bash scripts/prompting.sh MODEL_NAME MODEL_SIZE";
     echo "MODEL_NAME is required [one of codebert, codet5, NatGen]";
     echo "MODEL_SIZE is required [base]";
     exit;
@@ -30,5 +30,5 @@ projects=("commons-cli" "commons-codec" "commons-collections" "commons-compress"
 
 for project in "${projects[@]}"
 do
-    python3 src/prompting/chatgpt.py --project_name $project --model_type $MODEL_NAME --model_size $MODEL_SIZE;
+    python3 src/bug_generator/chatgpt.py --project_name $project --model_type $MODEL_NAME --model_size $MODEL_SIZE;
 done
