@@ -27,6 +27,6 @@ We run [LEAM](https://github.com/tianzhaotju/LEAM) to generte mutants as part of
 
 ### muBERT
 
-We run [muBERT](https://github.com/Ahmedfir/mBERTa) to generte mutants as part of our fine-tuning dataset. The extracted dataset is uploaded under `muBERT/muBERT_mutants` in the anonymous Google Drive folder shared as part of the artifacts. One can run the following command to extract LEAM mutants and methods:
+We run [muBERT](https://github.com/Ahmedfir/mBERTa) to generte mutants as part of our fine-tuning dataset. The extracted dataset is uploaded under `muBERT/muBERT_mutants` in the anonymous Google Drive folder shared as part of the artifacts. One can run the following command to extract muBERT mutants and methods:
 
 `python3 src/create_defect_dataset/extract_mubert.py`
