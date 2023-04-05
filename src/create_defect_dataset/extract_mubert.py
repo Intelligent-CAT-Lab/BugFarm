@@ -78,7 +78,11 @@ def extract(mutant_dir,saveTo):
     get_files(mutant_dir,saveTo)
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    mutant_dir = args[0]
-    saveTo_dir = args[1]
+    # args = sys.argv[1:]
+    # mutant_dir = args[0]
+    # saveTo_dir = args[1]
+
+    mutant_dir = "data/defect/regminer_mutants"
+    saveTo_dir = "data/defect/regminer_mutants"
+    # args: mutants_dir, output_dir; here config output_dir same as input_dir
     get_files(mutant_dir,saveTo_dir)

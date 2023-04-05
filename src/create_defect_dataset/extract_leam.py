@@ -73,8 +73,13 @@ def extract(input_jsons_dir,saveto_dir,jsonline_file):
     get_files(input_jsons_dir,saveto_dir,jsonline_file)
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    input_jsons_dir = args[0]
-    saveto_dir = args[1]
-    jsonline_file = args[2]
+    # args = sys.argv[1:]
+    # input_jsons_dir = args[0]
+    # saveto_dir = args[1]
+    # jsonline_file = args[2]
+
+    # args: mutants_input_dir, output_dir, json_file; here config output_dir same as input_dir
+    input_jsons_dir = "data/defect/leam_mutants"
+    saveto_dir = "data/defect/leam_mutants"
+    jsonline_file = "data/defect/all_leam_mutants.jaonl"
     get_files(input_jsons_dir,saveto_dir,jsonline_file)
