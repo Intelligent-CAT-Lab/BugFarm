@@ -129,11 +129,9 @@ def main(args):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser("extract chatgpt responses")
-    parser.add_argument('--type', type=str, default='test', help='test or train')
-    parser.add_argument('--subtype', type=str, default='mubert', help='test or train')
-    parser.add_argument('--size', type=str, default='medium', help='small, medium')
-    parser.add_argument('--model', type=str, default='codebert-base', help='base')
+    parser = argparse.ArgumentParser("create defect dataset")
+    parser.add_argument('--type', type=str, default='bugfarm', help='bugfarm, bugswarm, leam, mubert, regminer')
+    parser.add_argument('--model', type=str, default='codebert-base', help='codebert-base, codet5-base, NatGen-base')
     return parser.parse_args()
 
 if __name__ == '__main__':
