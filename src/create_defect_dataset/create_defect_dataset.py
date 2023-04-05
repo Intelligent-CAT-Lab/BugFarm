@@ -90,6 +90,12 @@ def main(args):
         #args: mutants_input_dir, json_file
         extract_mubert.extract(jsonfiles_dir,jsonline_file) 
 
+    elif args.type == 'regminer':
+        regminer_mutants_dir = "data/defect/regminer_mutants"
+        regminer_outputs = "data/defect/regminer_mutants"
+        # args: mutants_dir, output_dir; here config output_dir same as input_dir
+        extract_regminer.extract(regminer_mutants_dir,regminer_outputs)
+
     else:
 
         projects = ["commons-cli", "commons-codec", "commons-collections", "commons-compress", "commons-csv", "commons-jxpath", "commons-lang", "commons-math", "gson", "jackson-core", "jackson-databind", "jackson-dataformat-xml", "jfreechart", "joda-time", "jsoup"]

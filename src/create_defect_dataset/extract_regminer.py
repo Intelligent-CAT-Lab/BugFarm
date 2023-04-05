@@ -271,6 +271,9 @@ def combine_final_results(save_dir):
             idx += 1
             jlf.write_all([method])
 
+def extract(reg_dir,save_dir):
+    extract_per_project(reg_dir,save_dir)
+    combine_final_results(save_dir)
 
 if __name__ == "__main__":
     args = sys.argv[1:]
