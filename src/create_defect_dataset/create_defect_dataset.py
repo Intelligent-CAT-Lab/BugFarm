@@ -6,6 +6,7 @@ import glob
 import os
 import extract_leam
 import extract_mubert
+import extract_regminer
 
 def main(args):
 
