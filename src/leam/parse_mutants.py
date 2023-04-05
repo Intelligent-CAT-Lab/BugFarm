@@ -125,6 +125,3 @@ if __name__ == "__main__":
     timeStamp = args[2]
     get_file(mutant_dir,saveto_dir,timeStamp)
 
-# dir1 = "/home/yang/LEAM/output/65567235f44631f818a5a4af4120acb219c7acd8/mutants"
-# saveDir1 = "/home/yang/statistics_leam/65567235f44631f818a5a4af4120acb219c7acd8"
-

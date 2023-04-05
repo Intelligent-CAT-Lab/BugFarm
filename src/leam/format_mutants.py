@@ -80,5 +80,4 @@ if __name__ == "__main__":
     saveto_dir = args[1]
     get_files(input_jsons_dir,saveto_dir)
     
-    # dir1 = "/home/yang/all_mutants_leam_mubert/leam/65567235f44631f818a5a4af4120acb219c7acd8"
-    # saveTo = "leam_all_mutants_new"
+   
