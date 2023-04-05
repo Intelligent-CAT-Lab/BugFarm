@@ -276,8 +276,12 @@ def extract(reg_dir,save_dir):
     combine_final_results(save_dir)
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    reg_dir = args[0]
-    save_dir = args[1]
+    # args = sys.argv[1:]
+    # reg_dir = args[0]
+    # save_dir = args[1]
+
+    reg_dir = "data/defect/regminer_mutants"
+    save_dir = "data/defect/regminer_mutants"
+    # args: mutants_dir, output_dir; here config output_dir same as input_dir
     extract_per_project(reg_dir,save_dir)
     combine_final_results(save_dir)

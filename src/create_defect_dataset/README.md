@@ -12,5 +12,8 @@ We use the real dataset (Mockito and Closure) provided by [Defects4J](https://gi
 
 ## RegMiner
 
+We use the real dataset provided by [RegMiner](https://github.com/SongXueZhi/RegMiner) to evaluate the performance of finetuned models. The extracted dataset is uploaded under `RegMiner/RegMiner_mutants` in the anonymous Google Drive folder shared as part of the artifacts. One can run the following command to extract mutants and methods:
+`python3 src/create_defect_dataset/extract_regminer.py`
+
 
 ## Finetuning Dataset
