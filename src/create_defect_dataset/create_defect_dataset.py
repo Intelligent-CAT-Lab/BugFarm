@@ -92,9 +92,9 @@ def main(args):
 
     elif args.type == 'regminer':
         regminer_mutants_dir = "data/defect/regminer_mutants"
-        regminer_outputs = "data/defect/regminer_mutants"
+        regminer_outputs_dir = "data/defect/regminer_mutants"
         # args: mutants_dir, output_dir; here config output_dir same as input_dir
-        extract_regminer.extract(regminer_mutants_dir,regminer_outputs)
+        extract_regminer.extract(regminer_mutants_dir,regminer_outputs_dir)
 
     else:
 
