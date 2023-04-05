@@ -4,7 +4,8 @@ import ast
 import subprocess
 import glob
 import os
-
+import extract_leam
+import extract_mubert
 
 def main(args):
 
@@ -76,6 +77,18 @@ def main(args):
         for instance in distinct_instances:
             json_file.write(json.dumps({"func": f"{instance[0]}", "target": instance[1], "idx": counter}) + '\n')
             counter += 1
+
+    elif args.type == 'leam':
+        jsonfiles_dir = "data/defect/leam_mutants"
+        jsonline_file = os.path.join(jsonfiles_dir,"all_leam_mutants.jaonl")
+        # args: mutants_input_dir, output_dir, json_file; here config output_dir same as input_dir
+        extract_leam.extract(jsonfiles_dir,jsonfiles_dir,jsonline_file)
+    
+    elif args.type == 'mubert':
+        jsonfiles_dir = "data/defect/mubert_mutants"
+        jsonline_file = os.path.join(jsonfiles_dir,"all_mubert_mutants.jaonl")
+        #args: mutants_input_dir, json_file
+        extract_mubert.extract(jsonfiles_dir,jsonline_file) 
 
     else:
 
