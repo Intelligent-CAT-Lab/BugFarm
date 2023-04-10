@@ -30,6 +30,9 @@ def process_instance(l):
         project = dct['project']
         os.makedirs(f'temp_project_{index}', exist_ok=True)
 
+        if os.path.exists(f'test_logs/{project}/{index}.{bug_id}.{args.model_name}.build.log'):
+            continue
+
         os.system(f'cp -r projects/{project} temp_project_{index}/')
                 
         buggy_method = dct[f'buggy_method{bug_id}']
