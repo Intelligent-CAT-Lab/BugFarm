@@ -59,9 +59,9 @@ def process_instance(l):
 
         os.chdir(f'temp_project_{index}/{project}')
         if project in ['commons-lang', 'joda-time']:
-            os.system(f'JAVA_HOME=`/usr/libexec/java_home -v 1.8` mvn clean compile test -Drat.skip=true --log-file {project}.{index}.{bug_id}.{args.model_name}.build.log')
+            os.system(f'timeout 3600 JAVA_HOME=`/usr/libexec/java_home -v 1.8` mvn clean compile test -Drat.skip=true --log-file {project}.{index}.{bug_id}.{args.model_name}.build.log')
         else:
-            os.system(f'mvn clean compile test -Drat.skip=true --log-file {project}.{index}.{bug_id}.{args.model_name}.build.log')
+            os.system(f'timeout 3600 mvn clean compile test -Drat.skip=true --log-file {project}.{index}.{bug_id}.{args.model_name}.build.log')
         
         with open(f'{project}.{index}.{bug_id}.{args.model_name}.build.log', 'r') as f:
             data = f.readlines()
