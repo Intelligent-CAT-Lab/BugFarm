@@ -63,6 +63,12 @@ def process_instance(l):
         else:
             os.system(f'timeout 3600 mvn clean compile test -Drat.skip=true --log-file {project}.{index}.{bug_id}.{args.model_name}.build.log')
         
+        if os.path.getsize(f'{project}.{index}.{bug_id}.{args.model_name}.build.log') > 100000000:
+            os.system(f'echo > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
+            os.chdir('../../')
+            os.system(f'rm -rf temp_project_{index}/{project}')
+            continue
+
         with open(f'{project}.{index}.{bug_id}.{args.model_name}.build.log', 'r') as f:
             data = f.readlines()
 
