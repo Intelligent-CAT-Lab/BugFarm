@@ -46,7 +46,7 @@ def process_instance(l):
         relative_path = file_path.split(f'{project}/')[1]
 
         file_lines = []
-        with open(f'temp_project_{index}/{project}/{relative_path}', 'r') as f:
+        with open(f'temp_project_{index}/{project}/{relative_path}', 'r', encoding="ISO-8859-1", errors='ignore') as f:
             file_lines = f.readlines()
         
         file_lines[start_line-1:end_line] = buggy_method
