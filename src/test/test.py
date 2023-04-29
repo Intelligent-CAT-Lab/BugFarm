@@ -11,8 +11,6 @@ def main(args):
     with open(f'data/{args.project_name}/unique_methods_{args.model_name}_selected_bugs.jsonl') as f:
         lines = f.readlines()
 
-    lines = [lines[0]]
-
     os.makedirs(f'test_results/{args.project_name}', exist_ok=True)
 
     pool = multiprocessing.Pool(args.num_workers)
