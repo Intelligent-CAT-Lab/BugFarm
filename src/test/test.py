@@ -11,6 +11,8 @@ def main(args):
     with open(f'data/{args.project_name}/unique_methods_{args.model_name}_selected_bugs.jsonl') as f:
         lines = f.readlines()
 
+    lines = [lines[0]]
+
     os.makedirs(f'test_results/{args.project_name}', exist_ok=True)
 
     pool = multiprocessing.Pool(args.num_workers)
@@ -43,20 +45,20 @@ def process_instance(l):
         start_line = int(dct['start_line'])
         end_line = int(dct['end_line'])
 
-        relative_path = file_path.split(f'{project}/')[1]
+        relative_path = '/'.join(file_path.split('/')[1:])
 
         file_lines = []
-        with open(f'temp_project_{index}/{project}/{relative_path}', 'r', encoding="ISO-8859-1", errors='ignore') as f:
+        with open(f'temp_project_{index}/{relative_path}', 'r', encoding="ISO-8859-1", errors='ignore') as f:
             file_lines = f.readlines()
         
         file_lines[start_line-1:end_line] = buggy_method
 
-        with open(f'temp_project_{index}/{project}/{relative_path}', 'w') as f:
+        with open(f'temp_project_{index}/{relative_path}', 'w') as f:
             f.writelines(file_lines)
 
         os.chdir(f'temp_project_{index}/{project}')
         if project in ['commons-lang', 'joda-time']:
-            os.system(f'timeout 3600 JAVA_HOME=`/usr/libexec/java_home -v 1.8` mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
+            os.system(f'JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre" timeout 3600 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
         else:
             os.system(f'timeout 3600 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
 
