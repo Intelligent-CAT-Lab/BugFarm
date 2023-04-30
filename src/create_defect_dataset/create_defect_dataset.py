@@ -12,12 +12,12 @@ def main(args):
 
     if args.type == 'closure-mockito':
 
-        json_file = open(f'data/defect/real/test.jsonl', 'wt')
+        json_file = open(f'data/defect/defects4j/test.jsonl', 'wt')
 
         counter = 0
         instances = []
-        for project in ['Closure', 'Mockito']:
-            files = subprocess.Popen(["ls"] + glob.glob(f'data/defect/{project}/**/*.txt', recursive=True), stdout=subprocess.PIPE)
+        for project in ['Chart', 'Cli', 'Closure', 'Codec', 'Collections', 'Compress', 'Csv', 'Gson', 'JacksonCore', 'JacksonDatabind', 'JacksonXml', 'Jsoup', 'JxPath', 'Lang', 'Math', 'Mockito', 'Time']:
+            files = subprocess.Popen(["ls"] + glob.glob(f'data/defect/defects4j/{project}/**/*.txt', recursive=True), stdout=subprocess.PIPE)
             source_paths = [x.decode('ascii').strip() for x in files.stdout.readlines()]
 
             for source_path in source_paths:

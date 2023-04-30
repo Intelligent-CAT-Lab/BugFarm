@@ -25,13 +25,16 @@ def parse_java_func_intervals(content: str) -> Set[Tuple[int, int]]:
 
 def main(project):
 
+    deprecated_bugs = {'Cli': ['6'], 'Closure': ['63', '93'], 'Collections': [str(x) for x in range(1,25)], 'Lang': ['2'], 'Time': ['21']}
+    deprecated_bugs.setdefault(project, [])
+
     # use which defects4j and store the path here
     os.system('which defects4j > defects4j_path.txt')
     with open('defects4j_path.txt', 'r') as f:
-        defects4j_path = f.read().strip()
+        defects4j_path = f.read().strip().split('bin')[0]
         os.system(f'rm defects4j_path.txt')
 
-    path_ = f'{defects4j_path}/framework/projects/{project}/patches'
+    path_ = f'/{defects4j_path}/projects/{project}/patches'
 
     os.makedirs(f'data/defect/{project}/fixed', exist_ok=True)
     os.makedirs(f'data/defect/{project}/buggy', exist_ok=True)
@@ -44,7 +47,7 @@ def main(project):
         fp = os.path.join(path_, patch)
 
         lines = []
-        with open(fp, 'r') as f:
+        with open(fp, 'r', encoding="ISO-8859-1", errors='ignore') as f:
             lines = f.readlines()
 
         metadata = {}
@@ -52,11 +55,29 @@ def main(project):
         for l in lines:
 
             if l.startswith('---'):
-                recent_path = l.split(' ')[1].strip()[2:]
+                temp_path = l.split(' ')[1].strip()
+
+                if temp_path.startswith('source'):
+                    recent_path = temp_path
+                else:
+                    recent_path = temp_path[2:].strip()
+                
+                if not recent_path.endswith('.java'):
+                    recent_path = recent_path.split('\t')[0].strip()
+
                 metadata.setdefault(recent_path, [])
 
             elif l.startswith('+++'):
-                recent_path = l.split(' ')[1].strip()[2:]
+                temp_path = l.split(' ')[1].strip()
+
+                if temp_path.startswith('source'):
+                    recent_path = temp_path
+                else:
+                    recent_path = temp_path[2:].strip()
+                
+                if not recent_path.endswith('.java'):
+                    recent_path = recent_path.split('\t')[0].strip()
+                    
                 metadata.setdefault(recent_path, [])
 
             elif l.startswith('@@'):
@@ -64,6 +85,10 @@ def main(project):
                 metadata[recent_path].append((int(splitted[1].strip().split(',')[0][1:]), int(splitted[2].strip().split(',')[0][1:])))
 
         bug_id = patch.split('.')[0]
+
+        if bug_id in deprecated_bugs[project]:
+            print(f'Deprecated bug detected. Skipping bug {bug_id}')
+            continue
 
         if os.path.exists(f'data/defect/{project}/fixed/' + bug_id):
             print(f'Already exists: {bug_id}')
@@ -83,6 +108,10 @@ def main(project):
 
         c = 0
         for path in metadata:
+            
+            if not path.endswith('.java'):
+                continue
+
             fix_ls = [x[0] for x in metadata[path]]
             buggy_ls = [x[1] for x in metadata[path]]
             fixed_path = path
@@ -91,7 +120,7 @@ def main(project):
             for i in range(len(fix_ls)):
                 fixed_line = fix_ls[i]
 
-                with open('fixed/' + fixed_path, 'r') as f:
+                with open('fixed/' + fixed_path, 'r', encoding="ISO-8859-1", errors='ignore') as f:
                     fixed_content = f.read()
                     fixed_lines = fixed_content.split('\n')
                     intervals = parse_java_func_intervals(fixed_content)
@@ -117,7 +146,7 @@ def main(project):
 
 
                 buggy_line = buggy_ls[i]
-                with open('buggy/' + buggy_path, 'r') as f:
+                with open('buggy/' + buggy_path, 'r', encoding="ISO-8859-1", errors='ignore') as f:
                     buggy_content = f.read()
                     buggy_lines = buggy_content.split('\n')
                     intervals = parse_java_func_intervals(buggy_content)
