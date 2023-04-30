@@ -25,7 +25,7 @@ def main(args):
 
                 with open(source_path, 'r') as f:
                     func = f.read()
-                    func = ' '.join(func.split())
+                    # func = ' '.join(func.split())
                 
                 if 'fixed' in source_path:
                     instances.append((func, 1))
@@ -62,14 +62,14 @@ def main(args):
                 for fixed_file in fixed_files:
                     with open(path_ + dir_ + '/' + bug_id + '/' + 'fixed' + '/' + fixed_file, 'r') as f:
                         func = f.read()
-                        func = ' '.join(func.split())
+                        # func = ' '.join(func.split())
                         instances.append((func, 1))
                         json_file.flush()
                 
                 for buggy_file in buggy_files:
                     with open(path_ + dir_ + '/' + bug_id + '/' + 'buggy' + '/' + buggy_file, 'r') as f:
                         func = f.read()
-                        func = ' '.join(func.split())
+                        # func = ' '.join(func.split())
                         instances.append((func, 0))
                         json_file.flush()
 
