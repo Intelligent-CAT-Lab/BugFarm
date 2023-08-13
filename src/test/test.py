@@ -71,7 +71,7 @@ def process_instance(l):
 
         os.chdir(f'temp_project_{project}_{index}/{project}')
         if project in ['commons-lang', 'joda-time']:
-            os.system(f'JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre" timeout 300 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
+            os.system(f'JAVA_HOME="/usr/lib/jvm/java-1.8.0/jre" timeout 300 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
         else:
             os.system(f'timeout 300 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
 
