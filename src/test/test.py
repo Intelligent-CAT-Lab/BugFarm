@@ -5,6 +5,7 @@ import multiprocessing
 import sys
 import logging
 import time
+import shutil
 
 
 def main(args):
@@ -39,15 +40,17 @@ def process_instance(l):
     if dct['selected_bugs'] == []:
         return
 
+    project = dct['project']
+    main_dir = os.getcwd()
+    os.makedirs(f'temp_project_{project}_{index}', exist_ok=True)
+    os.system(f'cp -r projects/{project} temp_project_{project}_{index}/')
+    
     for bug_id in dct['selected_bugs']:
-        project = dct['project']
-
-        os.makedirs(f'temp_project_{index}', exist_ok=True)
 
         if os.path.exists(f'test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log'):
             continue
 
-        os.system(f'cp -r projects/{project} temp_project_{index}/')
+        os.system(f'rm -rf temp_project_{project}_{index}/{project}/target')
 
         buggy_method = dct[f'buggy_method{bug_id}']
 
@@ -58,24 +61,24 @@ def process_instance(l):
         relative_path = '/'.join(file_path.split('/')[1:])
 
         file_lines = []
-        with open(f'temp_project_{index}/{relative_path}', 'r', encoding="ISO-8859-1", errors='ignore') as f:
+        with open(f'temp_project_{project}_{index}/{relative_path}', 'r', encoding="ISO-8859-1", errors='ignore') as f:
             file_lines = f.readlines()
         
         file_lines[start_line-1:end_line] = buggy_method
 
-        with open(f'temp_project_{index}/{relative_path}', 'w') as f:
+        with open(f'temp_project_{project}_{index}/{relative_path}', 'w') as f:
             f.writelines(file_lines)
 
-        os.chdir(f'temp_project_{index}/{project}')
+        os.chdir(f'temp_project_{project}_{index}/{project}')
         if project in ['commons-lang', 'joda-time']:
             os.system(f'JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64/jre" timeout 300 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
         else:
             os.system(f'timeout 300 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
 
-        os.chdir('../../')
-        os.system(f'rm -rf temp_project_{index}/{project}')
-
-    os.rmdir(f'temp_project_{index}')
+        os.system(f'cp {main_dir}/projects/{relative_path} {main_dir}/temp_project_{project}_{index}/{relative_path}')
+        os.chdir(main_dir)
+    
+    shutil.rmtree(f'temp_project_{project}_{index}', ignore_errors=True)
 
 
 def parse_args():
