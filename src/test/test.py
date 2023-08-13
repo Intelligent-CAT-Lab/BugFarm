@@ -12,7 +12,7 @@ def main(args):
 
     os.makedirs(f'logs', exist_ok=True)
     logging.basicConfig(filename=f"logs/testing.log", level=logging.INFO, format='%(asctime)s %(levelname)s %(module)s - %(funcName)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    logging.info(f'testing project={args.project_name} model={args.model_name}')
+    logging.info(f'testing project={args.project_name} model_name={args.model_name} model_size={args.model_size}')
 
     start_time = time.time()
 
@@ -28,7 +28,7 @@ def main(args):
 
     end_time = time.time()
     time_minutes = round((end_time-start_time)/60,2)
-    logging.info(f'testing project={args.project_name} model={args.model_name} time={round(end_time-start_time,2)} seconds ({time_minutes} minutes)')
+    logging.info(f'testing project={args.project_name} model_name={args.model_name} model_size={args.model_size} time={round(end_time-start_time,2)} seconds ({time_minutes} minutes)')
 
 
 def process_instance(l):
@@ -47,7 +47,7 @@ def process_instance(l):
     
     for bug_id in dct['selected_bugs']:
 
-        if os.path.exists(f'test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log'):
+        if os.path.exists(f'test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}-{args.model_size}.build.log'):
             continue
 
         os.system(f'rm -rf temp_project_{project}_{index}/{project}/target')
@@ -71,9 +71,9 @@ def process_instance(l):
 
         os.chdir(f'temp_project_{project}_{index}/{project}')
         if project in ['commons-lang', 'joda-time']:
-            os.system(f'JAVA_HOME="/usr/lib/jvm/java-1.8.0/jre" timeout 300 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
+            os.system(f'JAVA_HOME="/usr/lib/jvm/java-1.8.0/jre" timeout 300 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}-{args.model_size}.build.log')
         else:
-            os.system(f'timeout 300 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}.build.log')
+            os.system(f'timeout 300 mvn clean test -Drat.skip=true 2> /dev/null | grep ERROR > ../../test_results/{project}/{project}.{index}.{bug_id}.{args.model_name}-{args.model_size}.build.log')
 
         os.system(f'cp {main_dir}/projects/{relative_path} {main_dir}/temp_project_{project}_{index}/{relative_path}')
         os.chdir(main_dir)
@@ -84,7 +84,8 @@ def process_instance(l):
 def parse_args():
     parser = argparse.ArgumentParser("test buggy methods on projects")
     parser.add_argument('--project_name', type=str, default='commons-cli', help='project name to test buggy methods on')
-    parser.add_argument('--model_name', type=str, default='codebert-base', help='model name to test buggy methods on')
+    parser.add_argument('--model_name', type=str, default='codebert', help='model name to test buggy methods on')
+    parser.add_argument('--model_size', type=str, default='base', help='model name to test buggy methods on')
     parser.add_argument('--num_workers', type=int, default=8, help='number of cpu cores to use for threading')
     return parser.parse_args()
 

@@ -30,4 +30,4 @@ MODEL_NAME=$2;
 MODEL_SIZE=$3;
 NUM_WORKERS=$4;
 
-python3 src/test/test.py --project_name $PROJECT_NAME --model_name $MODEL_NAME-$MODEL_SIZE --num_workers $NUM_WORKERS;
+python3 src/test/test.py --project_name $PROJECT_NAME --model_name $MODEL_NAME --model_size $MODEL_SIZE --num_workers $NUM_WORKERS;
