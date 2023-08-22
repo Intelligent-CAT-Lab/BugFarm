@@ -17,7 +17,7 @@ def main(args):
     start_time = time.time()
 
     lines = []
-    with open(f'data/{args.project_name}/unique_methods_{args.model_name}_selected_bugs.jsonl') as f:
+    with open(f'data/{args.project_name}/unique_methods_{args.model_name}-{args.model_size}_selected_bugs.jsonl') as f:
         lines = f.readlines()
 
     os.makedirs(f'test_results_{args.model_name}-{args.model_size}/{args.project_name}', exist_ok=True)
