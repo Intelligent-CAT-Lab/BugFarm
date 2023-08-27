@@ -52,10 +52,10 @@ elif [[ $MODEL_TAG == codebert ]]; then
   MODEL_TYPE=roberta
   TOKENIZER=roberta-base
   MODEL_PATH=microsoft/codebert-base
-elif [[ $MODEL_TAG == bart_base ]]; then
-  MODEL_TYPE=bart
-  TOKENIZER=facebook/bart-base
-  MODEL_PATH=facebook/bart-base
+elif [[ $MODEL_TAG == natgen ]]; then
+  MODEL_TYPE=codet5
+  TOKENIZER=saikatc/NatGen
+  MODEL_PATH=saikatc/NatGen
 elif [[ $MODEL_TAG == codet5_small ]]; then
   MODEL_TYPE=codet5
   TOKENIZER=Salesforce/codet5-small
