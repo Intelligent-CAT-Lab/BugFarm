@@ -16,6 +16,9 @@ WARMUP=${12}
 MODEL_DIR=${13}
 SUMMARY_DIR=${14}
 RES_FN=${15}
+TRAIN_FILENAME=${16}
+DEV_FILENAME=${17}
+TEST_FILENAME=${18}
 
 if [[ $DATA_NUM == -1 ]]; then
   DATA_TAG='all'
@@ -91,4 +94,5 @@ CUDA_VISIBLE_DEVICES=${GPU} \
   --cache_path ${CACHE_DIR}  --output_dir ${OUTPUT_DIR}  --summary_dir ${SUMMARY_DIR} \
   --save_last_checkpoints --always_save_model --res_dir ${RES_DIR} --res_fn ${RES_FN} \
   --train_batch_size ${BS} --eval_batch_size ${BS} --max_source_length ${SRC_LEN} --max_target_length ${TRG_LEN} \
+  --train_filename ${TRAIN_FILENAME} --dev_filename ${DEV_FILENAME} --test_filename ${TEST_FILENAME} \
   2>&1 | tee ${LOG}

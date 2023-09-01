@@ -400,7 +400,7 @@ def get_elapse_time(t0):
         return "{}m".format(minute)
 
 
-def get_filenames(data_root, task, sub_task, split=''):
+def get_filenames(data_root, task, sub_task, train_dataset_name, valid_dataset_name, test_dataset_name, split=''):
     if task == 'concode':
         data_dir = '{}/{}'.format(data_root, task)
         train_fn = '{}/train.json'.format(data_dir)
@@ -433,9 +433,9 @@ def get_filenames(data_root, task, sub_task, split=''):
         test_fn = '{}/test.txt'.format(data_dir)
     elif task == 'defect':
         data_dir = '{}/{}'.format(data_root, task)
-        train_fn = '{}/train.jsonl'.format(data_dir)
-        dev_fn = '{}/valid.jsonl'.format(data_dir)
-        test_fn = '{}/test.jsonl'.format(data_dir)
+        train_fn = '{}/{}_train.jsonl'.format(data_dir, train_dataset_name)
+        dev_fn = '{}/{}_valid.jsonl'.format(data_dir, valid_dataset_name)
+        test_fn = '{}/{}_test.jsonl'.format(data_dir, test_dataset_name)
     if split == 'train':
         return train_fn
     elif split == 'dev':
