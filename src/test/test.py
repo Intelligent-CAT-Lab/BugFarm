@@ -37,6 +37,9 @@ def process_instance(l):
 
     index = dct['index']
 
+    if args.model_name == 'no_loc':
+        dct['selected_bugs'] = [1, 2, 3]
+
     if dct['selected_bugs'] == []:
         return
 
