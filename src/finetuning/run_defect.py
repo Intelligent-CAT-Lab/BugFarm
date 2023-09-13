@@ -42,6 +42,8 @@ from models import DefectModel
 from configs import add_args, set_seed
 from utils import get_filenames, get_elapse_time, load_and_cache_defect_data
 from models import get_model_size
+from sklearn.metrics import confusion_matrix
+import json
 
 MODEL_CLASSES = {'roberta': (RobertaConfig, RobertaModel, RobertaTokenizer),
                  't5': (T5Config, T5ForConditionalGeneration, T5Tokenizer),
@@ -307,6 +309,19 @@ def main():
                     f.write('[Time: {}] {}\n'.format(get_elapse_time(t0), file))
                     f.write("[%s] acc: %.4f\n\n" % (
                         criteria, result['eval_acc']))
+        
+        with open(os.path.join(args.output_dir, "predictions.txt"), 'r') as f:
+            y_pred = f.readlines()
+            y_pred = [int(x.strip().split()[1].strip()) for x in y_pred]
+        
+        y_true = []
+        with open(f'{args.test_filename}', 'r') as f:
+            y_true = f.readlines()
+            y_true = [int(json.loads(x.strip())['target']) for x in y_true]
+
+        tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
+        print('tp: {}, fp: {}, fn: {}, tn: {}'.format(tp, fp, fn, tn))
+
     fa.close()
 
 
