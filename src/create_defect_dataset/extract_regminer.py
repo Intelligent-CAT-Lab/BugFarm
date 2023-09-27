@@ -155,7 +155,7 @@ def extract_patch(patch_path,project_name,jlfile_path):
                                 end = int(original_method_info[1])
                                 if int(changed_line_no) >= start and int(changed_line_no) <= end:
                                     original_method = original_method_info[2]
-                                    items = {"project":project_name,"file_path":file,"start":start,"end":end,"idx":"idx","patch":patch_path,"target":1,"func":original_method}
+                                    items = {"project":project_name,"file_path":file,"start":start,"end":end,"idx":"idx","patch":patch_path,"target":0,"func":original_method}
                                     if items not in fixed_methods:
                                         fixed_methods.append(items)
                     
@@ -186,15 +186,15 @@ def extract_patch(patch_path,project_name,jlfile_path):
                             end = int(mutant_info[1])
                             if int(changed_line_no) >= start and int(changed_line_no) <= end:
                                 mutant_func = mutant_info[2]
-                                items = {"project":project_name,"file_path":file,"start":start,"end":end,"idx":"idx","patch":patch_path,"target":0,"func":mutant_func}
+                                items = {"project":project_name,"file_path":file,"start":start,"end":end,"idx":"idx","patch":patch_path,"target":1,"func":mutant_func}
                                 if items not in buggy_methods:
                                     buggy_methods.append(items)
                                 
     idx = 0
     for each in fixed_methods:
-        if each["target"] == 1:
+        if each["target"] == 0:
             for b in buggy_methods:
-                if b["target"] == 0 and b["func"].split("{")[0].replace(" ","") == each ["func"].split("{")[0].replace(" ",""):
+                if b["target"] == 1 and b["func"].split("{")[0].replace(" ","") == each ["func"].split("{")[0].replace(" ",""):
                     with jsonlines.open(jlfile_path,"a") as jlf:
                         each["idx"] = idx
                         idx += 1

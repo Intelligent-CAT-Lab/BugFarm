@@ -40,7 +40,7 @@ def get_files(dir,saveTo):
                         "project":each["project"],
                         "file_path": each["file_path"],
                         "func" :each["mutated_method"],
-                        "target": 0, # latest: mutant = 0
+                        "target": 1, # latest: mutant = 0
                         "idx": "idx",
                         "start": each["start"]
                     }
@@ -50,7 +50,7 @@ def get_files(dir,saveTo):
                         "project":each["project"],
                         "file_path": each["file_path"],
                         "func" :each["original_method"],
-                        "target": 1, # latest: method = 0
+                        "target": 0, # latest: method = 0
                         "idx": "idx",
                         "start": each["start"]
                     }
