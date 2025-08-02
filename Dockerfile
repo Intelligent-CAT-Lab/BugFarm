@@ -12,8 +12,6 @@ RUN apt-get update && apt-get install -y \
     git \
     python3-pip \
     python3.9 \
-    python3.9-dev \
-    python3.9-distutils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
     
@@ -67,6 +65,12 @@ ENV PATH=/opt/conda/bin:$PATH
 # Copy environment.yaml and set up the environment
 WORKDIR /app
 COPY environment.yaml .
+
+# Accept conda Terms of Service for anaconda channels
+RUN conda config --set channel_priority strict && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main && \
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+
 RUN conda env create -f environment.yaml
 
 # Create a script to activate conda environment automatically
