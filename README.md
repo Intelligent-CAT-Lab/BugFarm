@@ -18,7 +18,8 @@ Authors are [Ali Reza Ibrahimzada][ali], Yang Chen, Ryan Rong, and [Reyhaneh Jab
   - [Attention Analyzer](#attention-analyzer)
   - [Bug Generator](#bug-generator)
   - [Create Defect Dataset](#create-defect-dataset)
-  - [Finetuning](#finetuning)
+  - [Bug Prediction](#bug-prediction)
+  - [Bug Repair](#bug-repair)
   - [LEAM](#leam)
   - [muBERT](#mubert)
 - [Citation](#citation)
@@ -91,6 +92,8 @@ Key steps:
 
 For detailed instructions, see [Bug Generator README](src/bug_generator/README.md).
 
+We provide synthetic bugs on Zenodo. Please download `mutants.zip` from the [BugFarm Zenodo archive](https://doi.org/10.5281/zenodo.13886318).
+
 ### Create Defect Dataset
 
 This module creates datasets for training and evaluating bug detection models using various sources:
@@ -103,11 +106,17 @@ This module creates datasets for training and evaluating bug detection models us
 
 For detailed instructions, see [Create Defect Dataset README](src/create_defect_dataset/README.md).
 
-### Finetuning
+We provide defect datasets on Zenodo. Please download `defect_datasets.zip` from the [BugFarm Zenodo archive](https://doi.org/10.5281/zenodo.13886318).
 
-This module finetunes models for bug detection using the created defect datasets.
+### Bug Prediction
+
+This module finetunes models for bug prediction using the created defect datasets.
 
 For detailed instructions, see [Finetuning README](src/finetuning/README.md).
+
+### Bug Repair
+
+We use artifacts of [FitRepair](https://zenodo.org/records/8327890) for performing bug repair on the generated mutants. Please refer to the original repository for details on how to use FitRepair. We provide the generated patches from FitRepair on Zenodo. Please download `apr.zip` from the [BugFarm Zenodo archive](https://doi.org/10.5281/zenodo.13886318).
 
 ### LEAM
 
