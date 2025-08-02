@@ -1,0 +1,11 @@
+name: bugfarm
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
+  - pip=23.0
+  - jupyter
+  - matplotlib=3.3.4
+  - numpy=1.21.6
+  - seaborn=0.12.2

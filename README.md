@@ -1,4 +1,4 @@
-# BUGFARM
+# BugFarm
 
 [ali]: https://alirezai.cs.illinois.edu/
 [reyhaneh]: https://reyhaneh.cs.illinois.edu/index.htm
@@ -8,14 +8,133 @@ Artifact repository for the paper [_Challenging Bug Prediction and Repair Models
 Synthetic Bugs_][paper], accepted at _SCAM 2025_, Auckland, New Zealand.
 Authors are [Ali Reza Ibrahimzada][ali], Yang Chen, Ryan Rong, and [Reyhaneh Jabbarvand][reyhaneh].
 
+## Table of Contents
+- [Overview](#overview)
+- [Data Archive](#data-archive)
+- [Getting Started](#getting-started)
+  - [Using Docker (Recommended)](#using-docker-recommended)
+  - [Manual Setup](#manual-setup)
+- [Project Modules](#project-modules)
+  - [Attention Analyzer](#attention-analyzer)
+  - [Bug Generator](#bug-generator)
+  - [Create Defect Dataset](#create-defect-dataset)
+  - [Finetuning](#finetuning)
+  - [LEAM](#leam)
+  - [muBERT](#mubert)
+- [Citation](#citation)
+- [Contact](#contact)
+
+## Overview
+
+BugFarm is a framework that generates synthetic bugs through the analysis of least-attended tokens and statements in code. These synthetic bugs challenge and evaluate bug prediction and repair models. The pipeline involves extracting methods from projects, analyzing attention weights, determining least-attended components, and using LLMs to generate plausible bugs.
+
 ## Data Archive
+
 Please visit [Zenodo](https://doi.org/10.5281/zenodo.13886318) to access the results of BugFarm. We will refer to certain files from this archive in the following sections.
 
-## Dependencies
-All experiments require Python 3.9 and a Linux/Mac OS. Please execute the following to install dependencies and download the projects:
+## Getting Started
 
-`sudo bash setup.sh`
+### Using Docker (Recommended)
 
-Moreover, you need to setup the [tokenizer tool](https://github.com/devreplay/source-code-tokenizer).
+The easiest way to set up BugFarm is using Docker:
 
-Please refer to each module under `/src` for detailed explanation of how to perform the experiments.
+```bash
+# Build the Docker image
+docker build -t bugfarm .
+
+# Run the container
+docker run -it bugfarm bash
+```
+
+### Manual Setup
+
+If you prefer a manual setup:
+
+1. Install [`miniconda`](https://www.anaconda.com/docs/getting-started/miniconda/install)
+
+2. Create and activate the environment:
+
+   ```bash
+   conda env create -f environment.yaml
+   conda activate bugfarm
+   ```
+
+3. Set up the [tokenizer tool](https://github.com/devreplay/source-code-tokenizer)
+
+4. Install dependencies and download projects:
+
+   ```bash
+   bash setup.sh
+   ```
+
+## Project Modules
+
+### Attention Analyzer
+
+This module extracts methods from projects and analyzes attention weights to determine least attended tokens (LAT) and least attended statements (LAS).
+
+Key steps:
+1. Extract methods from projects
+2. Extract attention weights
+3. Analyze attention weights to determine LAT/LAS
+
+For detailed instructions, see [Attention Analyzer README](src/attention_analyzer/README.md).
+
+### Bug Generator
+
+This module uses LLMs to generate synthetic bugs based on the attention analysis results.
+
+Key steps:
+1. Prompt LLM with LAT/LAS information
+2. Parse LLM responses to extract buggy methods
+3. Select the most suitable bugs
+
+For detailed instructions, see [Bug Generator README](src/bug_generator/README.md).
+
+### Create Defect Dataset
+
+This module creates datasets for training and evaluating bug detection models using various sources:
+
+- BugSwarm
+- Mockito-Closure (from Defects4J)
+- RegMiner
+- LEAM
+- muBERT
+
+For detailed instructions, see [Create Defect Dataset README](src/create_defect_dataset/README.md).
+
+### Finetuning
+
+This module finetunes models for bug detection using the created defect datasets.
+
+For detailed instructions, see [Finetuning README](src/finetuning/README.md).
+
+### LEAM
+
+This module generates mutants using the LEAM framework.
+
+For detailed instructions, see [LEAM README](src/leam/README.md).
+
+### muBERT
+
+This module generates mutants using the muBERT framework.
+
+For detailed instructions, see [muBERT README](src/mubert/README.md).
+
+## Citation
+
+If you use BugFarm in your research, please cite our paper:
+
+```bibtex
+@inproceedings{ibrahimzada2025challenging,
+  title={Challenging Bug Prediction and Repair Models with Synthetic Bugs},
+  author={Ibrahimzada, Ali Reza and Chen, Yang and Rong, Ryan and Jabbarvand, Reyhaneh},
+  booktitle={International Working Conference on Source Code Analysis and Manipulation (SCAM)},
+  year={2025},
+  organization={IEEE}
+}
+```
+
+## Contact
+
+For any questions or issues, please contact [Ali Reza Ibrahimzada](https://alirezai.cs.illinois.edu/).
