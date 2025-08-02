@@ -138,4 +138,4 @@ For detailed instructions, see [muBERT README](src/mubert/README.md).
 
 ## Contact
 
-For any questions or issues, please contact [Ali Reza Ibrahimzada](https://alirezai.cs.illinois.edu/).
+For any questions or issues, please contact [Ali Reza Ibrahimzada](https://alirezai.cs.illinois.edu/) or open an issue on GitHub.
