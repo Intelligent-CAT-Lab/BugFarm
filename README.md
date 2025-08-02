@@ -9,21 +9,23 @@ Synthetic Bugs_][paper], accepted at _SCAM 2025_, Auckland, New Zealand.
 Authors are [Ali Reza Ibrahimzada][ali], Yang Chen, Ryan Rong, and [Reyhaneh Jabbarvand][reyhaneh].
 
 ## Table of Contents
-- [Overview](#overview)
-- [Data Archive](#data-archive)
-- [Getting Started](#getting-started)
-  - [Using Docker (Recommended)](#using-docker-recommended)
-  - [Manual Setup](#manual-setup)
-- [Project Modules](#project-modules)
-  - [Attention Analyzer](#attention-analyzer)
-  - [Bug Generator](#bug-generator)
-  - [Create Defect Dataset](#create-defect-dataset)
-  - [Bug Prediction](#bug-prediction)
-  - [Bug Repair](#bug-repair)
-  - [LEAM](#leam)
-  - [muBERT](#mubert)
-- [Citation](#citation)
-- [Contact](#contact)
+- [BugFarm](#bugfarm)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Data Archive](#data-archive)
+  - [Getting Started](#getting-started)
+    - [Using Docker (Recommended)](#using-docker-recommended)
+    - [Manual Setup](#manual-setup)
+  - [Project Modules](#project-modules)
+    - [Attention Analyzer](#attention-analyzer)
+    - [Bug Generator](#bug-generator)
+    - [Create Defect Dataset](#create-defect-dataset)
+    - [Bug Prediction](#bug-prediction)
+    - [Bug Repair](#bug-repair)
+    - [Human Study](#human-study)
+    - [LEAM](#leam)
+    - [muBERT](#mubert)
+  - [Contact](#contact)
 
 ## Overview
 
@@ -117,6 +119,10 @@ For detailed instructions, see [Finetuning README](src/finetuning/README.md).
 ### Bug Repair
 
 We use artifacts of [FitRepair](https://zenodo.org/records/8327890) for performing bug repair on the generated mutants. Please refer to the original repository for details on how to use FitRepair. We provide the generated patches from FitRepair on Zenodo. Please download `apr.zip` from the [BugFarm Zenodo archive](https://doi.org/10.5281/zenodo.13886318).
+
+### Human Study
+
+Please refer to `human_study.zip` in the [BugFarm Zenodo archive](https://doi.org/10.5281/zenodo.13886318) for the results of our human study on the generated bugs. You can also find human labeler results directly on [UIUCPlus](https://github.com/Intelligent-CAT-Lab/UIUCPlus). Please refer to different branches for different human labelers and mutants.
 
 ### LEAM
 
