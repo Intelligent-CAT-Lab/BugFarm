@@ -136,6 +136,24 @@ This module generates mutants using the muBERT framework.
 
 For detailed instructions, see [muBERT README](src/mubert/README.md).
 
+## Citation
+
+If you find BugFarm useful in your research, please cite our paper:
+
+```bibtex
+@INPROCEEDINGS{11190139,
+  author={Ibrahimzada, Ali Reza and Chen, Yang and Rong, Ryan and Jabbarvand, Reyhaneh},
+  booktitle={2025 IEEE International Conference on Source Code Analysis & Manipulation (SCAM)}, 
+  title={Challenging Bug Prediction and Repair Models with Synthetic Bugs}, 
+  year={2025},
+  volume={},
+  number={},
+  pages={133-144},
+  keywords={Training;Codes;Computer bugs;Training data;Transforms;Maintenance engineering;Predictive models;Software systems;Software engineering;Testing;Bug Generation;Bug Prediction;Interpretation},
+  doi={10.1109/SCAM67354.2025.00021}
+}
+```
+
 ## Contact
 
 For any questions or issues, please contact [Ali Reza Ibrahimzada](https://alirezai.cs.illinois.edu/) or open an issue on GitHub.
